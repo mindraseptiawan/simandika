@@ -1,3 +1,5 @@
+// lib/pages/form_tambah_ayam_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/kandang_model.dart';
@@ -6,93 +8,64 @@ import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/header_widget.dart';
 
-class FormAyamPage extends StatefulWidget {
-  final KandangModel? kandang;
-
-  const FormAyamPage({super.key, this.kandang});
+class FormTambahAyamPage extends StatefulWidget {
+  const FormTambahAyamPage({super.key});
 
   @override
-  FormAyamPageState createState() => FormAyamPageState();
+  _FormTambahAyamPageState createState() => _FormTambahAyamPageState();
 }
 
-class FormAyamPageState extends State<FormAyamPage> {
-  late TextEditingController _namaKandangController;
-  late TextEditingController _operatorController;
-  late TextEditingController _lokasiController;
-  late TextEditingController _kapasitasController;
-  late TextEditingController _jumlahRealController;
-  bool _isActive = true;
+class _FormTambahAyamPageState extends State<FormTambahAyamPage> {
+  final KandangService _kandangService = KandangService();
+  List<KandangModel> _kandangs = [];
+  KandangModel? _selectedKandang;
+  final TextEditingController _jumlahTambahController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    _namaKandangController = TextEditingController(
-      text: widget.kandang?.namaKandang ?? '',
-    );
-    _operatorController = TextEditingController(
-      text: widget.kandang?.operator ?? '',
-    );
-    _lokasiController = TextEditingController(
-      text: widget.kandang?.lokasi ?? '',
-    );
-    _kapasitasController = TextEditingController(
-      text: widget.kandang?.kapasitas.toString() ?? '',
-    );
-    _jumlahRealController = TextEditingController(
-      text: widget.kandang?.jumlahReal.toString() ?? '',
-    );
-    _isActive = widget.kandang?.status ?? true;
+    _loadKandangs();
   }
 
-  Future<void> _saveKandang() async {
-    final kandangService = KandangService();
+  Future<void> _loadKandangs() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.user.token;
-
-    final newKandang = KandangModel(
-      id: widget.kandang?.id ?? 0,
-      namaKandang: _namaKandangController.text,
-      operator: _operatorController.text,
-      lokasi: _lokasiController.text,
-      kapasitas: int.parse(_kapasitasController.text),
-      jumlahReal: int.parse(_jumlahRealController.text),
-      status: _isActive,
-    );
-
     try {
-      if (widget.kandang == null) {
-        await kandangService.addKandang(newKandang, token!);
-        Navigator.pop(context, true);
-      } else {
-        await kandangService.updateKandang(newKandang.id, newKandang, token!);
-        Navigator.pop(context, true);
-      }
+      final kandangs = await _kandangService.getKandangs(token!);
+      setState(() {
+        _kandangs = kandangs;
+      });
     } catch (e) {
-      debugPrint(
-          'Failed to ${widget.kandang == null ? 'add' : 'update'} kandang: $e');
-      Navigator.pop(context, false);
+      // Handle error
+      print('Failed to load kandangs: $e');
     }
   }
 
-  Widget _buildSaveButton() {
-    return SizedBox(
-      height: 50,
-      width: double.infinity,
-      child: TextButton(
-        onPressed: _saveKandang,
-        style: TextButton.styleFrom(
-          backgroundColor: primaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: Text(
-          widget.kandang == null ? 'Tambah' : 'Update',
-          style: primaryTextStyle.copyWith(fontSize: 16, fontWeight: bold),
-        ),
-      ),
-    );
+  Future<void> _tambahAyam() async {
+    if (_selectedKandang == null || _jumlahTambahController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pilih kandang dan masukkan jumlah ayam')),
+      );
+      return;
+    }
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.user.token;
+    try {
+      await _kandangService.tambahAyam(
+        _selectedKandang!.id,
+        int.parse(_jumlahTambahController.text),
+        token!,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Berhasil menambahkan ayam')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menambahkan ayam: $e')),
+      );
+    }
   }
 
   @override
@@ -112,7 +85,7 @@ class FormAyamPageState extends State<FormAyamPage> {
                   children: [
                     Center(
                       child: Text(
-                        'Informasi Kandang',
+                        'Tambah Ayam',
                         style: primaryTextStyle.copyWith(
                           fontSize: 20,
                           color: Colors.white,
@@ -121,76 +94,72 @@ class FormAyamPageState extends State<FormAyamPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Nama Kandang',
-                      controller: _namaKandangController,
-                      hintText: 'Nama Kandang',
-                      iconPath: 'assets/icon_name.png',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Operator',
-                      controller: _operatorController,
-                      hintText: 'Operator',
-                      iconPath: 'assets/icon_name.png',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                        label: 'Lokasi',
-                        controller: _lokasiController,
-                        hintText: 'Lokasi',
-                        icon: const Icon(Icons.location_on),
-                        Color: iconColor
-                        // iconPath: 'assets/icon_name.png',
+                    DropdownButtonFormField<KandangModel>(
+                      decoration: InputDecoration(
+                        labelText: 'Pilih Kandang',
+                        labelStyle: inputTextStyle,
+                        filled: true,
+                        fillColor: backgroundColor22,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Kapasitas',
-                      controller: _kapasitasController,
-                      hintText: 'Kapasitas',
-                      iconPath: 'assets/ayam.png',
+                      ),
+                      value: _selectedKandang,
+                      items: _kandangs
+                          .where((kandang) => kandang.status == true)
+                          .map((KandangModel kandang) {
+                        return DropdownMenuItem<KandangModel>(
+                          value: kandang,
+                          child: Text(
+                            '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
+                            style: inputTextStyle,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (KandangModel? newValue) {
+                        setState(() {
+                          _selectedKandang = newValue;
+                        });
+                      },
                     ),
                     const SizedBox(height: 20),
-                    _buildInputField(
-                        label: 'Jumlah Real',
-                        controller: _jumlahRealController,
-                        hintText: 'Jumlah Real',
-                        icon: const Icon(Icons.numbers)
-                        // iconPath: 'assets/icon_name.png',
+                    TextFormField(
+                      controller: _jumlahTambahController,
+                      decoration: InputDecoration(
+                        labelText: 'Jumlah Ayam',
+                        labelStyle: primaryTextStyle,
+                        hintText: 'Masukkan jumlah ayam ditambahkan',
+                        hintStyle: subtitleTextStyle,
+                        filled: true,
+                        fillColor: backgroundColor22,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Text(
-                          'Status',
-                          style: primaryTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: medium,
+                      ),
+                      keyboardType: TextInputType.number,
+                      style: primaryTextStyle,
+                    ),
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: TextButton(
+                        onPressed: _tambahAyam,
+                        style: TextButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Switch(
-                          value: _isActive,
-                          onChanged: (value) {
-                            setState(() {
-                              _isActive = value;
-                            });
-                          },
-                          activeColor: Colors.green,
-                          inactiveThumbColor: Colors.red,
-                          inactiveTrackColor: Colors.redAccent,
-                        ),
-                        Text(
-                          _isActive ? 'Aktif' : 'Tidak Aktif',
+                        child: Text(
+                          'Tambah Ayam',
                           style: primaryTextStyle.copyWith(
                             fontSize: 16,
-                            fontWeight: medium,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 50),
-                    _buildSaveButton(), // Use the custom button here
                   ],
                 ),
               ),
@@ -198,63 +167,6 @@ class FormAyamPageState extends State<FormAyamPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInputField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    String? iconPath, // Make this optional
-    Icon? icon, // Make this optional
-    Color? Color, // Add this parameter
-    bool obscureText = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: primaryTextStyle.copyWith(fontSize: 16, fontWeight: medium),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: backgroundColor22,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              if (iconPath != null)
-                Image.asset(
-                  iconPath,
-                  width: 17,
-                  color: iconColor, // Apply color to iconPath if needed
-                )
-              else if (icon != null)
-                Icon(
-                  icon.icon, // Use the icon data
-                  color: iconColor, // Apply color to icon if provided
-                ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  style: inputTextStyle,
-                  decoration: InputDecoration(
-                    hintText: hintText,
-                    hintStyle: subtitleTextStyle,
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

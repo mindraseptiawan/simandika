@@ -66,6 +66,21 @@ class KandangService {
     }
   }
 
+  Future<void> tambahAyam(int kandangId, int jumlahTambah, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/kandang/$kandangId/tambah-ayam'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'jumlah_tambah': jumlahTambah}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add ayam');
+    }
+  }
+
   // Method untuk memperbarui kandang berdasarkan ID, memerlukan peran "pimpinan"
   Future<bool> updateKandang(int id, KandangModel kandang, String token) async {
     var url = Uri.parse('$baseUrl/kandang/$id');

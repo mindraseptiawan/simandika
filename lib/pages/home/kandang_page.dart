@@ -321,7 +321,7 @@ class _KandangPageState extends State<KandangPage> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const FormAyamPage(),
+                  builder: (context) => const FormTambahAyamPage(),
                 ),
               );
 

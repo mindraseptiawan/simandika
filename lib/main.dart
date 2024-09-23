@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/pages/edit_profile_page.dart';
 import 'package:simandika/pages/home/main_page.dart';
-import 'package:simandika/pages/inventaris/kandang_page.dart';
+import 'package:simandika/pages/home/kandang_page.dart';
 import 'package:simandika/pages/auth/sign_in_page.dart';
 import 'package:simandika/pages/inventaris/form_pakan_page.dart';
 import 'package:simandika/pages/auth/sign_up_page.dart';

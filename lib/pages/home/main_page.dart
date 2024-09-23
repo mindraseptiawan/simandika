@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:simandika/pages/home/home_page.dart';
 import 'package:simandika/pages/home/layanan_page.dart';
 import 'package:simandika/pages/home/profile_page.dart';
-import 'package:simandika/pages/inventaris/kandang_page.dart';
+import 'package:simandika/pages/home/kandang_page.dart';
 import 'package:simandika/providers/page_provider.dart';
 import 'package:simandika/theme.dart';
 

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/order_model.dart';
 import 'package:simandika/models/user_model.dart';
-import 'package:simandika/pages/home/ayam_page.dart';
+import 'package:simandika/pages/inventaris/ayam_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
