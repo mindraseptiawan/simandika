@@ -159,14 +159,16 @@ class OrderService {
     }
   }
 
-  Future<bool> processOrder(int orderId, String token) async {
+  Future<bool> processOrder(int orderId, String token, int kandangId) async {
     var url = Uri.parse('$baseUrl/orders/$orderId/process');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
 
-    var response = await http.post(url, headers: headers);
+    var requestBody = jsonEncode({'kandang_id': kandangId});
+
+    var response = await http.post(url, headers: headers, body: requestBody);
 
     if (response.statusCode == 200) {
       return true;
@@ -250,6 +252,8 @@ class OrderService {
           throw Exception(
               jsonResponse['meta']['message'] ?? 'Failed to load orders');
         }
+      } else if (response.statusCode == 404) {
+        return [];
       } else {
         debugPrint('Response body: ${response.body}');
         throw Exception(

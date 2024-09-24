@@ -4,6 +4,7 @@ import 'package:simandika/models/sale_model.dart';
 class OrderModel {
   final int id;
   final int customerId;
+  final int? kandangId;
   final String orderDate;
   final String status;
   final int quantity;
@@ -21,6 +22,7 @@ class OrderModel {
     required this.orderDate,
     required this.status,
     required this.quantity,
+    this.kandangId,
     this.alamat,
     this.paymentMethod,
     this.paymentProof,
@@ -38,6 +40,7 @@ class OrderModel {
       status: json['status'],
       quantity: json['quantity'],
       alamat: json['alamat'],
+      kandangId: json['kandang_id'],
       paymentMethod: json['payment_method'],
       paymentProof: json['payment_proof'],
       paymentVerifiedAt: json['payment_verified_at'],
@@ -61,6 +64,7 @@ class OrderModel {
       'status': status,
       'quantity': quantity,
       'alamat': alamat ?? '', // Default value jika null
+      'kandang_id': kandangId ?? '', // Default value jika null
       'payment_method': paymentMethod ?? '', // Default value jika null
       'payment_proof': paymentProof ?? '', // Default value jika null
       'payment_verified_at': paymentVerifiedAt ?? '', // Default value jika null

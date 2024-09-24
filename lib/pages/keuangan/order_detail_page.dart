@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/order_model.dart';
+import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
@@ -22,12 +24,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   String? _errorMessage;
   String? _paymentProofPath;
   String? _selectedPaymentMethod = 'cash';
+  int? _selectedKandang;
   final TextEditingController _paymentProofController = TextEditingController();
+  List<KandangModel> _kandangList = [];
+  final KandangService _kandangService = KandangService();
 
   @override
   void initState() {
     super.initState();
     _fetchOrderDetails();
+    getKandangs();
+  }
+
+  Future<void> getKandangs() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.user.token;
+
+    try {
+      List<KandangModel> kandangs = await _kandangService.getKandangs(token!);
+      if (!mounted) return;
+      setState(() {
+        _kandangList = kandangs;
+      });
+    } catch (e) {
+      if (mounted) {
+        // Handle errors and refresh token if needed
+        debugPrint('Failed to load kandangs: $e');
+        // Optionally show a message or refresh token if needed
+      }
+    }
   }
 
   Future<void> _fetchOrderDetails() async {
@@ -103,25 +128,33 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     });
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
 
-    try {
-      final orderService = OrderService();
-      final success = await orderService.processOrder(widget.orderId!, token!);
+    if (_selectedKandang != null) {
+      try {
+        final orderService = OrderService();
+        final success = await orderService.processOrder(
+            widget.orderId!, token!, _selectedKandang!);
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order processed successfully')),
-        );
-        Navigator.pop(context, true);
-        _fetchOrderDetails();
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order processed successfully')),
+          );
+          Navigator.pop(context, true);
+          _fetchOrderDetails();
+        }
+      } catch (e) {
+        debugPrint("Error processing order: $e");
+        setState(() {
+          _errorMessage = 'An error occurred: $e';
+        });
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
-    } catch (e) {
-      debugPrint("Error processing order: $e");
+    } else {
+      // Handle the case where _selectedKandang is null
       setState(() {
-        _errorMessage = 'An error occurred: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
+        _errorMessage = 'Please select a kandang';
       });
     }
   }
@@ -249,12 +282,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: _setPricePerUnit,
-                                  child: const Text('Process Order'),
+                                  child: const Text('Set Order Price'),
                                 ),
                               ] else if (order.status == 'price_set') ...[
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    const Text('Select Kandang: '),
+                                    DropdownButton(
+                                      value: _selectedKandang,
+                                      items: _kandangList
+                                          .where((kandang) =>
+                                              kandang.status == true)
+                                          .map((kandang) => DropdownMenuItem(
+                                                value: kandang.id,
+                                                child: Text(
+                                                    '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})'),
+                                              ))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedKandang = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                                 ElevatedButton(
                                   onPressed: _processOrder,
-                                  child: const Text('Processed Order'),
+                                  child: const Text('Process Order'),
                                 ),
                               ] else if (order.status ==
                                   'awaiting_payment') ...[
