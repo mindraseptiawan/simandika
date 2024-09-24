@@ -68,7 +68,7 @@ class PurchaseService {
     if (response.statusCode == 200) {
       return true;
     } else {
-      print(response.body);
+      debugPrint(response.body);
       throw Exception('Failed to create order');
     }
   }

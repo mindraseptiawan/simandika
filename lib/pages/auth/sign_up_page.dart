@@ -26,6 +26,7 @@ class SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final konteks = context;
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     bool obscurePassword = true; // Menyimpan status visibilitas password
 
@@ -47,17 +48,21 @@ class SignUpPageState extends State<SignUpPage> {
         phone: phoneController.text,
         password: passwordController.text,
       )) {
-        Navigator.pushNamed(context, '/home');
+        if (konteks.mounted) {
+          Navigator.pushNamed(context, '/home');
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: alertColor,
-            content: const Text(
-              'Gagal Register!',
-              textAlign: TextAlign.center,
+        if (konteks.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: alertColor,
+              content: const Text(
+                'Gagal Register!',
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
 
       setState(() {

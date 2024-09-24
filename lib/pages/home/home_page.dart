@@ -243,8 +243,18 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        bool value = await _onWillPop();
+        if (value) {
+          navigator.pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: backgroundColor1,
         body: SafeArea(

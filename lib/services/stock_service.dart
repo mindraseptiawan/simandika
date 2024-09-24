@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:simandika/models/purchase_model.dart';
+import 'package:simandika/models/stock_model.dart';
 
-class PurchaseService {
+class StockService {
   final String _baseUrl =
       'http://192.168.137.1:8000/api'; // ganti dengan URL API Anda
 
   // Method to get all purchases
-  Future<List<PurchaseModel>> getAllStocks(String token) async {
+  Future<List<StockMovementModel>> getAllStocks(String token) async {
     var url = Uri.parse('$_baseUrl/stocks');
     var headers = {
       'Content-Type': 'application/json',
@@ -22,13 +22,13 @@ class PurchaseService {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
       // Access the list of purchases from 'data'
-      List<dynamic> purchasesData = jsonResponse['data'];
+      List<dynamic> stocksData = jsonResponse['data'];
 
-      // Convert the list of dynamic to list of PurchaseModel
-      List<PurchaseModel> purchases =
-          purchasesData.map((item) => PurchaseModel.fromJson(item)).toList();
+      // Convert the list of dynamic to list of StockMovementModel
+      List<StockMovementModel> stocks =
+          stocksData.map((item) => StockMovementModel.fromJson(item)).toList();
 
-      return purchases;
+      return stocks;
     } else {
       debugPrint(response.body);
       throw Exception('Failed to load purchases');
@@ -36,8 +36,8 @@ class PurchaseService {
   }
 
   // Method to get a specific purchase by ID
-  Future<PurchaseModel> getPurchaseById(int id, String token) async {
-    var url = Uri.parse('$_baseUrl/purchases/$id');
+  Future<StockMovementModel> getStockById(int id, String token) async {
+    var url = Uri.parse('$_baseUrl/stocks/$id');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -46,10 +46,38 @@ class PurchaseService {
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      return PurchaseModel.fromJson(jsonDecode(response.body));
+      return StockMovementModel.fromJson(jsonDecode(response.body));
     } else {
       debugPrint(response.body);
       throw Exception('Failed to load purchase');
+    }
+  }
+
+  Future<List<StockMovementModel>> getStockByKandangId(
+      int kandangId, String token) async {
+    var url = Uri.parse('$_baseUrl/stocks/kandang/$kandangId');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      // Parse the JSON response
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+      // Access the list of stocks from 'data'
+      List<dynamic> stocksData = jsonResponse['data'];
+
+      // Convert the list of dynamic to list of StockMovementModel
+      List<StockMovementModel> stocks =
+          stocksData.map((item) => StockMovementModel.fromJson(item)).toList();
+
+      return stocks;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load stocks');
     }
   }
 
@@ -68,29 +96,29 @@ class PurchaseService {
     if (response.statusCode == 200) {
       return true;
     } else {
-      print(response.body);
+      debugPrint(response.body);
       throw Exception('Failed to create order');
     }
   }
 
   // Method to update a purchase by ID
-  Future<PurchaseModel> updatePurchase(
-      int id, PurchaseModel purchase, String token) async {
+  Future<StockMovementModel> updateStock(
+      int id, StockMovementModel stock, String token) async {
     var url = Uri.parse('$_baseUrl/purchases/$id');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    var body = jsonEncode({
-      'quantity': purchase.quantity,
-      'price_per_unit': purchase.pricePerUnit,
-      'total_price': purchase.totalPrice,
-    });
+    // var body = jsonEncode({
+    //   'quantity': purchase.quantity,
+    //   'price_per_unit': purchase.pricePerUnit,
+    //   'total_price': purchase.totalPrice,
+    // });
 
-    var response = await http.put(url, headers: headers, body: body);
+    var response = await http.put(url, headers: headers);
 
     if (response.statusCode == 200) {
-      return PurchaseModel.fromJson(jsonDecode(response.body));
+      return StockMovementModel.fromJson(jsonDecode(response.body));
     } else {
       debugPrint(response.body);
       throw Exception('Failed to update purchase');

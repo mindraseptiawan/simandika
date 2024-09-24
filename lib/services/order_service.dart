@@ -96,7 +96,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
-      print(response.body);
+      debugPrint(response.body);
       throw Exception('Failed to create order');
     }
   }
@@ -230,7 +230,7 @@ class OrderService {
         throw Exception('Failed to submit payment proof');
       }
     } catch (e) {
-      print('Error submitting payment proof: $e');
+      debugPrint('Error submitting payment proof: $e');
       return false;
     }
   }

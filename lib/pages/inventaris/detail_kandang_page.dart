@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/pemeliharaan_model.dart';
+import 'package:simandika/models/stock_model.dart';
 import 'package:simandika/pages/inventaris/detail_pemeliharaan_page.dart';
 import 'package:simandika/pages/inventaris/form_pemeliharaan_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/pemeliharaan_service.dart';
+import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
 
 class DetailPage extends StatefulWidget {
@@ -27,6 +29,7 @@ class DetailPageState extends State<DetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<KandangModel> _kandangData;
+  late Future<List<StockMovementModel>> _stockData;
   late Future<List<PemeliharaanModel>> _pemeliharaanData;
   bool _showFab = false;
 
@@ -47,9 +50,11 @@ class DetailPageState extends State<DetailPage>
       _kandangData = KandangService().getKandangById(widget.kandangId, token);
       _pemeliharaanData = PemeliharaanService()
           .getPemeliharaansByKandang(widget.kandangId, token);
+      _stockData = StockService().getStockByKandangId(widget.kandangId, token);
     } else {
       _kandangData = Future.error('Invalid token or kandang ID');
       _pemeliharaanData = Future.error('Invalid token or kandang ID');
+      _stockData = Future.error('Invalid token or kandang ID');
     }
   }
 
@@ -419,8 +424,37 @@ class DetailPageState extends State<DetailPage>
   }
 
   Widget _buildPenjualanTab() {
-    return const Center(
-        child: Text('Penjualan tab content',
-            style: TextStyle(color: Colors.white)));
+    return FutureBuilder<List<StockMovementModel>>(
+      future: _stockData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white)));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+              child:
+                  Text('No data found', style: TextStyle(color: Colors.white)));
+        } else {
+          final stocks = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: stocks.length,
+            itemBuilder: (context, index) {
+              final stock = stocks[index];
+
+              return ListTile(
+                title: Text(stock.notes,
+                    style: const TextStyle(color: Colors.white)),
+                subtitle: Text('Quantity: ${stock.quantity}',
+                    style: const TextStyle(color: Colors.white)),
+              );
+            },
+          );
+        }
+      },
+    );
   }
 }

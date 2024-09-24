@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
 import 'package:simandika/pages/keuangan/transaksi_page.dart';
 import 'package:simandika/pages/user_management_page.dart';
+import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/header_widget.dart';
 
@@ -15,58 +17,107 @@ class LayananPage extends StatefulWidget {
 }
 
 class LayananPageState extends State<LayananPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor1,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Header(),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ListView.builder(
-                  itemCount: 8,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        _navigateToPage(context, index);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 16),
-                            Icon(
-                              _getIconForIndex(index),
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              _getTextForIndex(index),
-                              style: primaryTextStyle.copyWith(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+  Future<bool> _onWillPop() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () async {
+                try {
+                  await Provider.of<AuthProvider>(context, listen: false)
+                      .logout();
+                  Navigator.of(context).pop(true);
+                } catch (e) {
+                  // Handle error (e.g., show a message to the user)
+                  debugPrint('Logout failed: $e');
+                  Navigator.of(context).pop(false);
+                }
+              },
             ),
           ],
+        );
+      },
+    );
+    return shouldLogout ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        bool value = await _onWillPop();
+        if (value) {
+          navigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor1,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const Header(),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ListView.builder(
+                    itemCount: 8,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          _navigateToPage(context, index);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 16),
+                              Icon(
+                                _getIconForIndex(index),
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                _getTextForIndex(index),
+                                style: primaryTextStyle.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

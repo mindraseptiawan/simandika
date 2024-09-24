@@ -152,7 +152,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
     return Scaffold(
       backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Form Tambah Order',
+        title: const Text('Form Pembelian Ayam',
             style: TextStyle(color: Colors.white)),
         backgroundColor: primaryColor,
       ),
@@ -165,7 +165,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
               children: [
                 Center(
                   child: Text(
-                    'Informasi Order',
+                    'Informasi Purchase',
                     style: primaryTextStyle.copyWith(
                       fontSize: 20,
                       color: Colors.white,

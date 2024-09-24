@@ -33,6 +33,42 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future<bool> _onWillPop() async {
+      final shouldLogout = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to log out?'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text('Logout'),
+                onPressed: () async {
+                  try {
+                    await Provider.of<AuthProvider>(context, listen: false)
+                        .logout();
+                    Navigator.of(context).pop(true);
+                  } catch (e) {
+                    // Handle error (e.g., show a message to the user)
+                    debugPrint('Logout failed: $e');
+                    Navigator.of(context).pop(false);
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return shouldLogout ?? false;
+    }
+
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
     Widget header() {
@@ -143,11 +179,23 @@ class ProfilePage extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        header(),
-        content(),
-      ],
-    );
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) {
+            return;
+          }
+          final navigator = Navigator.of(context);
+          bool value = await _onWillPop();
+          if (value) {
+            navigator.pop();
+          }
+        },
+        child: Column(
+          children: [
+            header(),
+            content(),
+          ],
+        ));
   }
 }
