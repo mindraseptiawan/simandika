@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:simandika/models/user_model.dart';
 import 'package:simandika/pages/inventaris/detail_kandang_page.dart';
 import 'package:simandika/pages/inventaris/form_ayam_page.dart';
+import 'package:simandika/pages/keuangan/form_purchase_page.dart';
 // import 'package:simandika/pages/functional_menu.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/pages/inventaris/form_kandang_page.dart';
@@ -321,7 +322,7 @@ class _KandangPageState extends State<KandangPage> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const FormTambahAyamPage(),
+                  builder: (context) => const FormPurchasePage(),
                 ),
               );
 
