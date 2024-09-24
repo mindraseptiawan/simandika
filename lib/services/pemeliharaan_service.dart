@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/pemeliharaan_model.dart';
 
 class PemeliharaanService {
-  final String baseUrl = 'http://192.168.1.6:8000/api';
+  final String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method untuk mendapatkan daftar semua pemeliharaan
   Future<List<PemeliharaanModel>> getPemeliharaans(String token) async {

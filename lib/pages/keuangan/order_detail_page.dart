@@ -132,7 +132,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       try {
         final orderService = OrderService();
         final success = await orderService.processOrder(
-            widget.orderId!, token!, _selectedKandang!);
+            token!, widget.orderId!, _selectedKandang!);
 
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -142,10 +142,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           _fetchOrderDetails();
         }
       } catch (e) {
-        debugPrint("Error processing order: $e");
-        setState(() {
-          _errorMessage = 'An error occurred: $e';
-        });
+        if (e.toString() == 'Stock in kandang is insufficient') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Stock in kandang is insufficient')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Stock dikandang tidak cukup')),
+          );
+        }
       } finally {
         setState(() {
           _isLoading = false;
@@ -153,9 +158,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       }
     } else {
       // Handle the case where _selectedKandang is null
-      setState(() {
-        _errorMessage = 'Please select a kandang';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a kandang')),
+      );
     }
   }
 

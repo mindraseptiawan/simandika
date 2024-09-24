@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/sale_model.dart';
 
 class SaleService {
-  final String baseUrl = 'http://192.168.1.6:8000/api';
+  final String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method to get a sale by ID
   Future<SaleModel> getSaleById(int id, String token) async {

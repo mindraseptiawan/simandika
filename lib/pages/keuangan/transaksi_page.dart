@@ -112,8 +112,8 @@ class TransaksiPageState extends State<TransaksiPage> {
                         return ListTile(
                           title: Text(
                             transaksi.type == 'sale'
-                                ? 'Penjualan'
-                                : 'Pembelian',
+                                ? 'Penjualan #${transaksi.id}'
+                                : 'Pembelian #${transaksi.id}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: primaryColor,

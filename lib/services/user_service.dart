@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/user_model.dart';
 
 class UserService {
-  String baseUrl = 'http://192.168.1.6:8000/api';
+  String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Ambil daftar pengguna
   Future<List<UserModel>> getUsers(String token) async {

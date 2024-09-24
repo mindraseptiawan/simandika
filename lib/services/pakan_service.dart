@@ -5,7 +5,7 @@ import 'package:simandika/models/pakan_model.dart';
 // Pastikan Anda memiliki PakanModel yang sesuai
 
 class PakanService {
-  final String baseUrl = 'http://192.168.1.6:8000/api';
+  final String baseUrl = 'http://192.168.137.1:8000/api';
 
   Future<List<PakanModel>> getPakan(String token) async {
     var url = Uri.parse('$baseUrl/pakan');

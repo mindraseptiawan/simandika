@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/order_model.dart';
 
 class OrderService {
-  String baseUrl = 'http://192.168.1.6:8000/api';
+  String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method to get all orders
   Future<List<OrderModel>> getAllOrders(String token) async {
@@ -159,22 +159,50 @@ class OrderService {
     }
   }
 
-  Future<bool> processOrder(int orderId, String token, int kandangId) async {
+  Future<bool> processOrder(String token, int orderId, int kandangId) async {
     var url = Uri.parse('$baseUrl/orders/$orderId/process');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
 
-    var requestBody = jsonEncode({'kandang_id': kandangId});
+    var body = {
+      'kandang_id': kandangId,
+    };
 
-    var response = await http.post(url, headers: headers, body: requestBody);
+    try {
+      var response =
+          await http.post(url, headers: headers, body: jsonEncode(body));
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      debugPrint(response.body);
-      throw Exception('Failed to process order');
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check if the request was successful
+        if (jsonResponse['meta']['status'] == 'success') {
+          return true;
+        } else {
+          throw Exception(
+              jsonResponse['meta']['message'] ?? 'Failed to process order');
+        }
+      } else if (response.statusCode == 400) {
+        // Check if the error is due to insufficient stock
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['meta']['message'] ==
+            'Stok di kandang tidak mencukupi') {
+          throw Exception('Stock in kandang is insufficient');
+        } else {
+          throw Exception(
+              jsonResponse['meta']['message'] ?? 'Failed to process order');
+        }
+      } else {
+        debugPrint('Response body: ${response.body}');
+        throw Exception(
+            'Failed to process order. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error processing order: $e');
+      throw Exception('Failed to process order: $e');
     }
   }
 
