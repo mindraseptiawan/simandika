@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/transaksi_model.dart';
+import 'package:simandika/pages/keuangan/form_transaksi_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';
 import 'package:simandika/theme.dart';
@@ -54,6 +55,21 @@ class TransaksiPageState extends State<TransaksiPage> {
         return typeLower.contains(query);
       }).toList();
     });
+  }
+
+  void _refreshTransactions() {
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+    if (token != null) {
+      setState(() {
+        _transactionData = TransaksiService().getAllTransactions(token);
+        _transactionData.then((data) {
+          setState(() {
+            _transactions = data;
+            _filteredTransactions = data;
+          });
+        });
+      });
+    }
   }
 
   @override
@@ -145,6 +161,25 @@ class TransaksiPageState extends State<TransaksiPage> {
               ),
             ),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const FormTransaksiPage(),
+            ),
+          );
+          if (result == true) {
+            _refreshTransactions();
+          }
+        },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Image.asset(
+          'assets/icon_tambah.png',
+          fit: BoxFit.cover,
         ),
       ),
     );

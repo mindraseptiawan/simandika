@@ -17,7 +17,8 @@ class TransaksiService {
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      List data = jsonDecode(response.body);
+      var jsonData = jsonDecode(response.body);
+      List data = jsonData['data']; // Akses data melalui key "data"
       List<TransaksiModel> transactions = data
           .map((item) => TransaksiModel.fromJson(item))
           .where((transaction) => transaction.amount != null)
@@ -41,7 +42,8 @@ class TransaksiService {
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      List data = jsonDecode(response.body);
+      var jsonData = jsonDecode(response.body);
+      List data = jsonData['data']; // Akses
       List<TransaksiModel> transactions =
           data.map((item) => TransaksiModel.fromJson(item)).toList();
       return transactions;
@@ -82,7 +84,7 @@ class TransaksiService {
 
     var response = await http.post(url, headers: headers, body: body);
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return true;
     } else {
       debugPrint(response.body);

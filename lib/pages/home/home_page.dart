@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/order_model.dart';
+import 'package:simandika/models/stock_model.dart';
 import 'package:simandika/models/user_model.dart';
 import 'package:simandika/pages/inventaris/ayam_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
+import 'package:simandika/pages/keuangan/dashboard_page.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
 import 'package:simandika/pages/keuangan/transaksi_page.dart';
 import 'package:simandika/pages/user_management_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/order_service.dart';
+import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -21,16 +24,41 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   var _pendingCount = 0;
-  var _waitCount = 0;
+  var _awaitingPaymentCount = 0;
+  var _verificationCount = 0;
   var _completedCount = 0;
+  double _totalInQuantity = 0;
+  double _totalOutQuantity = 0;
   final OrderService _orderService = OrderService();
+  final StockService _stockService = StockService();
+  Map<DateTime, Map<String, double>> _dailyQuantity = {};
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
     _setStatusBarColor();
     _loadOrdersByStatus();
+    _loadAyamQuantity();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void _setStatusBarColor() {
@@ -77,24 +105,71 @@ class _HomePageState extends State<HomePage> {
     return shouldLogout ?? false;
   }
 
+  Future<void> _loadAyamQuantity() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.user.token;
+    final List<StockMovementModel> jsonData =
+        await _stockService.getAllStocks(token!);
+
+    double totalInQuantity = 0.0;
+    double totalOutQuantity = 0.0;
+    Map<DateTime, Map<String, double>> dailyQuantity = {};
+
+    for (var data in jsonData) {
+      if (data.type == 'in') {
+        totalInQuantity += data.quantity;
+      } else if (data.type == 'out') {
+        totalOutQuantity += data.quantity;
+      }
+
+      DateTime date = data.createdAt.toLocal();
+      if (!dailyQuantity.containsKey(date)) {
+        dailyQuantity[date] = {'in': 0.0, 'out': 0.0};
+      }
+
+      if (data.type == 'in') {
+        dailyQuantity[date]!['in'] =
+            (dailyQuantity[date]!['in'] ?? 0) + data.quantity;
+      } else if (data.type == 'out') {
+        dailyQuantity[date]!['out'] =
+            (dailyQuantity[date]!['out'] ?? 0) + data.quantity;
+      }
+    }
+
+    setState(() {
+      _totalInQuantity = totalInQuantity;
+      _totalOutQuantity = totalOutQuantity;
+      _dailyQuantity = Map.fromEntries(
+        dailyQuantity.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+      );
+    });
+  }
+
   Future<void> _loadOrdersByStatus() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.user.token;
     List<OrderModel> pendingOrders =
         await _orderService.getOrdersByStatus(token!, 'pending');
-    List<OrderModel> waitOrders =
+    List<OrderModel> awaitingPaymentOrders =
         await _orderService.getOrdersByStatus(token, 'awaiting_payment');
+    List<OrderModel> verificationPaymentOrders =
+        await _orderService.getOrdersByStatus(token, 'payment_verification');
     List<OrderModel> completedOrders =
         await _orderService.getOrdersByStatus(token, 'completed');
 
     int pendingCount = pendingOrders.length;
-    int waitCount = waitOrders.length;
+    int awaitingPaymentCount = awaitingPaymentOrders.length;
+    int verificationPaymentCount = verificationPaymentOrders.length;
     int completedCount = completedOrders.length;
 
+    // debugPrint('Total Pending: $pendingCount');
+    // debugPrint('Total Waiting: $awaitingPaymentCount');
+    // debugPrint('Total Completed: $completedCount');
     // Update UI dengan jumlah order yang diterima
     setState(() {
       _pendingCount = pendingCount;
-      _waitCount = waitCount;
+      _awaitingPaymentCount = awaitingPaymentCount;
+      _verificationCount = verificationPaymentCount;
       _completedCount = completedCount;
     });
   }
@@ -134,112 +209,152 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
+    Widget _buildLegendItem(String label, Color color, String value) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 12, height: 12, color: color),
+          SizedBox(width: 4),
+          Text('$label: $value',
+              style: TextStyle(color: Colors.white, fontSize: 12)),
+        ],
+      );
+    }
+
+    BarChartGroupData _makeGroupData(int x, double y1, double y2) {
+      return BarChartGroupData(
+        x: x,
+        barRods: [
+          BarChartRodData(toY: y1, color: Colors.blue, width: 7),
+          BarChartRodData(toY: y2, color: Colors.orange, width: 7),
+        ],
+      );
+    }
+
     Widget dashboard() {
       return Container(
         padding: const EdgeInsets.all(16),
+        color: Color(0xFF1E1E1E),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Dashboard',
-                style: primaryTextStyle.copyWith(
-                    fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Container(
-                    height: 200,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 75, 73, 73),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Order Status',
-                            style: primaryTextStyle.copyWith(
-                                fontSize: 16, fontWeight: bold)),
-                        Expanded(
-                          child: PieChart(
-                            PieChartData(
-                              sections: [
-                                PieChartSectionData(
-                                  value: _pendingCount
-                                      .toDouble(), // Gunakan nilai _pendingCount
-                                  color: Colors.blue,
-                                  title: 'Pending:$_pendingCount',
-                                  titleStyle:
-                                      const TextStyle(color: Colors.white),
-                                ),
-                                PieChartSectionData(
-                                  value: _completedCount
-                                      .toDouble(), // Gunakan nilai _completedCount
-                                  color: Colors.green,
-                                  title: 'Completed:$_completedCount',
-                                  titleStyle:
-                                      const TextStyle(color: Colors.white),
-                                ),
-                                PieChartSectionData(
-                                  value: _waitCount
-                                      .toDouble(), // Gunakan nilai _cancelledCount
-                                  color: Colors.red,
-                                  title: 'Waiting,$_waitCount',
-                                  titleStyle:
-                                      const TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                Text('Overview',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    height: 200,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Chicken Count',
-                            style: primaryTextStyle.copyWith(fontSize: 16)),
-                        Expanded(
-                          child: BarChart(
-                            BarChartData(
-                              barGroups: [
-                                BarChartGroupData(
-                                    x: 0, barRods: [BarChartRodData(toY: 100)]),
-                                BarChartGroupData(
-                                    x: 1, barRods: [BarChartRodData(toY: 150)]),
-                                BarChartGroupData(
-                                    x: 2, barRods: [BarChartRodData(toY: 200)]),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    children: [
+                      Text('Show: This Year',
+                          style: TextStyle(color: Colors.white, fontSize: 12)),
+                      Icon(Icons.arrow_drop_down,
+                          color: Colors.white, size: 16),
+                    ],
                   ),
                 ),
               ],
             ),
+            SizedBox(height: 16),
+            Container(
+              height: 200, // Reduced height
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) {
+                      return PieChart(
+                        PieChartData(
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 50, // Smaller center space
+                          sections: [
+                            PieChartSectionData(
+                              value: _pendingCount.toDouble(),
+                              color: Colors.blue,
+                              title: '',
+                              radius: 25 * _animation.value,
+                              // Thinner and animated
+                            ),
+                            PieChartSectionData(
+                              value: _verificationCount.toDouble(),
+                              color: Colors.orange,
+                              title: '',
+                              radius: 25 * _animation.value,
+                              // Thinner and animated
+                            ),
+                            PieChartSectionData(
+                              value: _awaitingPaymentCount.toDouble(),
+                              color: Colors.green,
+                              title: '',
+                              radius:
+                                  25 * _animation.value, // Thinner and animated
+                            ),
+                            PieChartSectionData(
+                              value: _completedCount.toDouble(),
+                              color: Colors.yellow,
+                              title: '',
+                              radius:
+                                  25 * _animation.value, // Thinner and animated
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _totalOutQuantity.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28, // Slightly smaller font
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Penjualan',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                _buildLegendItem(
+                    'Pending', Colors.blue, _pendingCount.toString()),
+                _buildLegendItem('Verification Payment', Colors.orange,
+                    _verificationCount.toString()),
+                _buildLegendItem('Awaiting Payment', Colors.green,
+                    _awaitingPaymentCount.toString()),
+                _buildLegendItem(
+                    'Completed', Colors.yellow, _completedCount.toString()),
+              ],
+            ),
+            SizedBox(height: 24),
+            Text('Stok Ayam',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            StockChart(dailyQuantity: _dailyQuantity, animation: _animation),
           ],
         ),
-      );
-    }
-
-    Widget menuItem(String title, Widget icon, VoidCallback onTap) {
-      return ListTile(
-        leading: icon,
-        title: Text(title, style: primaryTextStyle),
-        onTap: onTap,
       );
     }
 
@@ -258,63 +373,137 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: backgroundColor1,
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                header(),
-                dashboard(),
-                menuItem('Dashboard',
-                    Icon(Icons.dashboard, color: primaryColor), () {}),
-                menuItem(
-                    'Transaksi', Icon(Icons.access_time, color: primaryColor),
-                    () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TransaksiPage()),
-                  );
-                }),
-                menuItem('Order', Icon(Icons.add_box, color: primaryColor), () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const OrderPage()),
-                  );
-                }),
-                menuItem('Ayam',
-                    Image.asset('assets/ayama.png', width: 24, height: 24), () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AyamPage()),
-                  );
-                }),
-                menuItem('Pakan', Icon(Icons.grass, color: primaryColor), () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PakanPage()),
-                  );
-                }),
-                menuItem('Customer', Icon(Icons.people, color: primaryColor),
-                    () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CustomerPage()),
-                  );
-                }),
-                menuItem(
-                    'User Settings', Icon(Icons.settings, color: primaryColor),
-                    () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserManagementPage()),
-                  );
-                }),
-              ],
-            ),
+          child: Column(
+            children: [
+              header(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: dashboard(),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+}
+
+class StockChart extends StatelessWidget {
+  final Map<DateTime, Map<String, double>> dailyQuantity;
+  final Animation<double> animation;
+
+  const StockChart({
+    Key? key,
+    required this.dailyQuantity,
+    required this.animation,
+  }) : super(key: key);
+
+  List<BarChartGroupData> _prepareChartData() {
+    Map<int, Map<String, double>> groupedData = {};
+    for (var entry in dailyQuantity.entries) {
+      int dayOfWeek = entry.key.weekday;
+      if (!groupedData.containsKey(dayOfWeek)) {
+        groupedData[dayOfWeek] = {'in': 0, 'out': 0};
+      }
+      groupedData[dayOfWeek]!['in'] =
+          (groupedData[dayOfWeek]!['in'] ?? 0) + (entry.value['in'] ?? 0);
+      groupedData[dayOfWeek]!['out'] =
+          (groupedData[dayOfWeek]!['out'] ?? 0) + (entry.value['out'] ?? 0);
+    }
+
+    return groupedData.entries.map((entry) {
+      return BarChartGroupData(
+        x: entry.key,
+        barRods: [
+          BarChartRodData(
+            toY: (entry.value['in'] ?? 0) * animation.value,
+            color: Colors.blue,
+            width: 7,
+          ),
+          BarChartRodData(
+            toY: (entry.value['out'] ?? 0) * animation.value,
+            color: Colors.orange,
+            width: 7,
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final chartGroups = _prepareChartData();
+    final maxY = chartGroups.fold<double>(
+        0,
+        (prev, group) => group.barRods
+            .fold<double>(prev, (p, rod) => rod.toY > p ? rod.toY : p));
+
+    return AspectRatio(
+        aspectRatio: 1.7,
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: maxY,
+            barTouchData: BarTouchData(enabled: false),
+            titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    const weekDays = [
+                      '',
+                      'Mon',
+                      'Tue',
+                      'Wed',
+                      'Thu',
+                      'Fri',
+                      'Sat',
+                      'Sun'
+                    ];
+                    return Text(
+                      weekDays[value.toInt()],
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    );
+                  },
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    );
+                  },
+                  reservedSize: 30,
+                ),
+              ),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            gridData: FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            barGroups: chartGroups,
+            extraLinesData: ExtraLinesData(
+              horizontalLines: [
+                HorizontalLine(
+                  y: maxY,
+                  color: Colors.white.withOpacity(0.5),
+                  strokeWidth: 1,
+                  label: HorizontalLineLabel(
+                    show: true,
+                    labelResolver: (line) => '${line.y.toStringAsFixed(0)}',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                    alignment: Alignment.topRight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }

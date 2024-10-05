@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.12.2"
+  charts_common_sa:
+    dependency: transitive
+    description:
+      name: charts_common_sa
+      sha256: "229e590f4c107a858a0b110104f63df856ffd1a0d0fac5a8ff61e7aac8d35d93"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.1"
   charts_flutter_maintained:
     dependency: "direct main"
     description:
@@ -41,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.12.2"
+  charts_flutter_sa:
+    dependency: "direct main"
+    description:
+      name: charts_flutter_sa
+      sha256: e780bf3f4a7c879ca541cae150c7e2489a51dbbc66750e430ab800d2fb633001
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   clock:
     dependency: transitive
     description:

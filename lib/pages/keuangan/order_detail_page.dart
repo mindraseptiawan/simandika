@@ -180,7 +180,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Payment proof submitted successfully')),
         );
-        _fetchOrderDetails();
+        Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() {
@@ -208,7 +208,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Payment verified successfully')),
         );
-        _fetchOrderDetails();
+        Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() {

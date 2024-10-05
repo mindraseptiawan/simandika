@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
+import 'package:simandika/pages/keuangan/dashboard_page.dart';
+import 'package:simandika/pages/keuangan/form_purchase_page.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
 import 'package:simandika/pages/keuangan/transaksi_page.dart';
 import 'package:simandika/pages/user_management_page.dart';
@@ -126,7 +128,8 @@ class LayananPageState extends State<LayananPage> {
   void _navigateToPage(BuildContext context, int index) {
     switch (index) {
       case 0:
-        // Navigator.push(context, MaterialPageRoute(builder: (context) => const Page1()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => DashboardPage()));
         break;
       case 1:
         Navigator.push(context,
@@ -142,20 +145,24 @@ class LayananPageState extends State<LayananPage> {
         break;
       case 4:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerPage()));
+            MaterialPageRoute(builder: (context) => const FormPurchasePage()));
         break;
       case 5:
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const UserManagementPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerPage()));
+        break;
       case 6:
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
-        break;
       case 7:
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const UserManagementPage()));
+        break;
+      case 8:
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -177,10 +184,12 @@ class LayananPageState extends State<LayananPage> {
       case 4:
         return Icons.add_box;
       case 5:
-        return Icons.supervised_user_circle;
+        return Icons.add_box;
       case 6:
-        return Icons.account_balance_wallet;
+        return Icons.supervised_user_circle;
       case 7:
+        return Icons.account_balance_wallet;
+      case 8:
         return Icons.assignment_add;
       default:
         return Icons.help;
@@ -198,12 +207,14 @@ class LayananPageState extends State<LayananPage> {
       case 3:
         return 'Pakan';
       case 4:
-        return 'Customer';
+        return 'Purchase';
       case 5:
-        return 'User Settings';
+        return 'Customer';
       case 6:
-        return 'Laporan Keuangan';
+        return 'User Settings';
       case 7:
+        return 'Laporan Keuangan';
+      case 8:
         return 'Laporan Inventaris';
       default:
         return 'Menu';
