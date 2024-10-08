@@ -3,9 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/transaksi_model.dart';
 import 'package:simandika/pages/keuangan/form_transaksi_page.dart';
+import 'package:simandika/pages/keuangan/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/pdf_generator.dart';
 
 class TransaksiPage extends StatefulWidget {
   const TransaksiPage({super.key});
@@ -21,6 +23,9 @@ class TransaksiPageState extends State<TransaksiPage> {
   // ignore: unused_field
   String _searchQuery = ''; // For future search filter
   final TextEditingController _searchController = TextEditingController();
+
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _endDate = DateTime.now();
 
   @override
   void initState() {
@@ -72,6 +77,43 @@ class TransaksiPageState extends State<TransaksiPage> {
     }
   }
 
+  Future<void> _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
+  Future<void> _generateAndPreviewPDF() async {
+    if (_transactions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada transaksi untuk dibuat PDF')),
+      );
+      return;
+    }
+
+    final pdfBytes =
+        await generateTransactionPDF(_transactions, _startDate, _endDate);
+    final fileName =
+        'transactions_${DateFormat('yyyyMMdd').format(_startDate)}_${DateFormat('yyyyMMdd').format(_endDate)}.pdf';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PDFPreviewPage(pdfBytes: pdfBytes, fileName: fileName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,8 +122,9 @@ class TransaksiPageState extends State<TransaksiPage> {
         backgroundColor: primaryColor,
         actions: [
           TextButton(
-            onPressed: () {
-              // Action for PDF button
+            onPressed: () async {
+              await _selectDateRange();
+              await _generateAndPreviewPDF();
             },
             child: const Text('PDF', style: TextStyle(color: Colors.white)),
           ),

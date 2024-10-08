@@ -232,6 +232,62 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     }
   }
 
+  Future<void> _cancelOrder() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+
+    // Show a dialog to confirm cancellation
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cancel Order'),
+          content: const Text('Apakah anda ingin membatalkan Order?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false); // Kembalikan false jika klik Cancel
+              },
+            ),
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Kembalikan true jika klik OK
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed ?? false) {
+      try {
+        final orderService = OrderService();
+        final success = await orderService.cancelOrder(widget.orderId!, token!);
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order cancelled successfully')),
+          );
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'An error occurred: $e';
+        });
+      }
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -377,6 +433,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                     style:
                                         Theme.of(context).textTheme.bodyLarge),
                               ],
+                              const SizedBox(height: 20),
+                              if (order.status != 'completed' &&
+                                  order.status != 'cancelled')
+                                ElevatedButton(
+                                  onPressed: _cancelOrder,
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Cancel Order'),
+                                ),
                             ],
                           ),
                         );

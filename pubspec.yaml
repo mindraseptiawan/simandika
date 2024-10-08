@@ -49,6 +49,11 @@ dependencies:
   fl_chart: ^0.69.0
   charts_flutter_maintained: ^0.12.2
   charts_flutter_sa: ^0.1.2
+  open_file: ^3.5.8
+  path_provider: ^2.1.4
+  pdf: ^3.11.1
+  printing: ^5.13.3
+  share_plus: ^10.0.2
 
 dev_dependencies:
   flutter_test:

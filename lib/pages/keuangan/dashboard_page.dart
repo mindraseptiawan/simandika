@@ -66,7 +66,7 @@ class CashflowChart extends StatelessWidget {
                         if (value.toInt() >= 0 &&
                             value.toInt() < cashflows.length) {
                           return Text(
-                            DateFormat('MM/dd')
+                            DateFormat('dd/MM')
                                 .format(cashflows[value.toInt()].date),
                             style: TextStyle(
                                 fontSize: 10, color: primaryTextColor),
@@ -323,7 +323,10 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: Text(
+          'Dashboard',
+          style: TextStyle(color: primaryTextColor),
+        ),
         backgroundColor: Color(0xFF6750A4),
       ),
       body: _cashflows == null

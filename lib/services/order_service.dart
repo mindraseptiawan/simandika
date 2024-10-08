@@ -242,12 +242,47 @@ class OrderService {
       'Authorization': 'Bearer $token',
     };
 
-    var response = await http.post(url, headers: headers);
+    try {
+      var response = await http.post(url, headers: headers);
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
+      if (response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 400) {
+        debugPrint('Error verify payment: Bad Request');
+        throw Exception('Bad Request');
+      } else if (response.statusCode == 401) {
+        debugPrint('Error verify payment: Unauthorized');
+        throw Exception('Unauthorized');
+      } else {
+        debugPrint('Error verify payment: ${response.statusCode}');
+        throw Exception('Failed to verify payment');
+      }
+    } catch (e) {
+      debugPrint('Error verify payment: $e');
       throw Exception('Failed to verify payment');
+    }
+  }
+
+  Future<bool> cancelOrder(int orderId, String token) async {
+    var url = Uri.parse('$baseUrl/orders/$orderId/cancel');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      var response = await http.post(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        debugPrint('Response body: ${response.body}');
+        throw Exception(
+            'Failed to cancel order. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error canceling order: $e');
+      throw Exception('Failed to cancel order: $e');
     }
   }
 
