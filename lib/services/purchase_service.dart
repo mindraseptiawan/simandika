@@ -4,8 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/purchase_model.dart';
 
 class PurchaseService {
-  final String _baseUrl =
-      'http://192.168.137.1:8000/api'; // ganti dengan URL API Anda
+  String _baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method to get all purchases
   Future<List<PurchaseModel>> getAllPurchases(String token) async {
@@ -18,16 +17,10 @@ class PurchaseService {
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      // Parse the JSON response
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-
-      // Access the list of purchases from 'data'
-      List<dynamic> purchasesData = jsonResponse['data'];
-
-      // Convert the list of dynamic to list of PurchaseModel
+      var jsonData = jsonDecode(response.body);
+      List data = jsonData['data']; // Akses data melalui key "data"
       List<PurchaseModel> purchases =
-          purchasesData.map((item) => PurchaseModel.fromJson(item)).toList();
-
+          data.map((item) => PurchaseModel.fromJson(item)).toList();
       return purchases;
     } else {
       debugPrint(response.body);
@@ -46,7 +39,8 @@ class PurchaseService {
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      return PurchaseModel.fromJson(jsonDecode(response.body));
+      var data = jsonDecode(response.body);
+      return PurchaseModel.fromJson(data);
     } else {
       debugPrint(response.body);
       throw Exception('Failed to load purchase');

@@ -10,6 +10,8 @@ class SaleModel {
   final int quantity;
   final double pricePerUnit;
   final double totalPrice;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final OrderModel? order; // Relationship with Order
   final TransaksiModel? transaction; // Relationship with Transaction
   final CustomerModel? customer; // Relationship with Customer
@@ -22,6 +24,8 @@ class SaleModel {
     required this.quantity,
     required this.pricePerUnit,
     required this.totalPrice,
+    required this.createdAt,
+    required this.updatedAt,
     this.order,
     this.transaction,
     this.customer,
@@ -36,6 +40,8 @@ class SaleModel {
       quantity: json['quantity'],
       pricePerUnit: double.parse(json['price_per_unit'].toString()),
       totalPrice: double.parse(json['total_price'].toString()),
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
       order: json['order'] != null ? OrderModel.fromJson(json['order']) : null,
       transaction: json['transaction'] != null
           ? TransaksiModel.fromJson(json['transaction'])
@@ -55,6 +61,8 @@ class SaleModel {
       'quantity': quantity,
       'price_per_unit': pricePerUnit.toString(),
       'total_price': totalPrice.toString(),
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
       'order': order?.toJson(),
       'transaction': transaction?.toJson(),
       'customer': customer?.toJson(),

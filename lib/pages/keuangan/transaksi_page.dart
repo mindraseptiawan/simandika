@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:simandika/models/transaksi_model.dart';
 import 'package:simandika/pages/keuangan/form_transaksi_page.dart';
 import 'package:simandika/pages/keuangan/pdf_preview.dart';
+import 'package:simandika/pages/keuangan/transaksi_detail_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';
 import 'package:simandika/theme.dart';
-import 'package:simandika/widgets/pdf_generator.dart';
+import 'package:simandika/widgets/transaksi_pdf_generator.dart';
 
 class TransaksiPage extends StatefulWidget {
   const TransaksiPage({super.key});
@@ -22,6 +23,7 @@ class TransaksiPageState extends State<TransaksiPage> {
   List<TransaksiModel> _filteredTransactions = [];
   // ignore: unused_field
   String _searchQuery = ''; // For future search filter
+  String reportType = 'Transaksi'; // For future search filter
   final TextEditingController _searchController = TextEditingController();
 
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
@@ -35,7 +37,8 @@ class TransaksiPageState extends State<TransaksiPage> {
       _transactionData = TransaksiService().getAllTransactions(token);
       _transactionData.then((data) {
         setState(() {
-          _transactions = data;
+          _transactions = data
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
           _filteredTransactions = data;
         });
       });
@@ -100,16 +103,27 @@ class TransaksiPageState extends State<TransaksiPage> {
       return;
     }
 
-    final pdfBytes =
-        await generateTransactionPDF(_transactions, _startDate, _endDate);
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak dapat mengakses token')),
+      );
+      return;
+    }
+
+    final pdfBytes = await generateTransactionPDF(
+        _transactions, _startDate, _endDate, token, reportType);
     final fileName =
         'transactions_${DateFormat('yyyyMMdd').format(_startDate)}_${DateFormat('yyyyMMdd').format(_endDate)}.pdf';
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            PDFPreviewPage(pdfBytes: pdfBytes, fileName: fileName),
+        builder: (context) => PDFPreviewPage(
+          pdfBytes: pdfBytes,
+          fileName: fileName,
+          reportTitle: 'Laporan Transaksi',
+        ),
       ),
     );
   }
@@ -152,56 +166,69 @@ class TransaksiPageState extends State<TransaksiPage> {
             // Display the transaction list
             Expanded(
               child: FutureBuilder<List<TransaksiModel>>(
-                future: _transactionData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Data Kosong'));
-                  } else {
-                    // Display all transactions for now
-                    return ListView.builder(
-                      itemCount: _filteredTransactions.length,
-                      itemBuilder: (context, index) {
-                        var transaksi = _filteredTransactions[index];
-                        String formattedDate = DateFormat('yyyy-MM-dd')
-                            .format(transaksi.createdAt);
-                        return ListTile(
-                          title: Text(
-                            transaksi.type == 'sale'
-                                ? 'Penjualan #${transaksi.id}'
-                                : 'Pembelian #${transaksi.id}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: primaryColor,
-                            ),
-                          ),
-                          subtitle: Text(
-                            '$formattedDate - ${transaksi.type == 'sale' ? 'Pendapatan' : 'Pengeluaran'}',
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          trailing: Text(
-                            transaksi.amount != null
-                                ? 'Rp ${transaksi.amount!.toStringAsFixed(2)}'
-                                : 'Proses',
-                            style: TextStyle(
-                              color: transaksi.amount != null
-                                  ? Colors.black
-                                  : Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onTap: () {
-                            // Handle transaction tap
-                          },
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+                  future: _transactionData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('Data Kosong'));
+                    } else {
+                      // Display all transactions for now
+                      return ListView.builder(
+                          itemCount: _filteredTransactions.length,
+                          itemBuilder: (context, index) {
+                            var transaksi = _filteredTransactions[index];
+                            String formattedDate = DateFormat('yyyy-MM-dd')
+                                .format(transaksi.createdAt);
+                            return ListTile(
+                              title: Text(
+                                transaksi.type == 'sale'
+                                    ? 'Penjualan #${transaksi.id}'
+                                    : 'Pembelian #${transaksi.id}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryColor,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    formattedDate,
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                  Text(
+                                    '${transaksi.keterangan}',
+                                    style: const TextStyle(color: Colors.grey),
+                                  )
+                                ],
+                              ),
+                              trailing: Text(
+                                transaksi.amount != null
+                                    ? '${NumberFormat.currency(locale: 'id_ID', decimalDigits: 2).format(transaksi.amount)}'
+                                    : 'Proses',
+                                style: TextStyle(
+                                  color: transaksi.amount != null
+                                      ? Colors.black
+                                      : Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TransaksiDetailPage(
+                                        transactionId: transaksi.id),
+                                  ),
+                                );
+                              },
+                            );
+                          });
+                    }
+                  }),
             ),
           ],
         ),

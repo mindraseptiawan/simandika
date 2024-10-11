@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simandika/pages/inventaris/stock_movement_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/dashboard_page.dart';
-import 'package:simandika/pages/keuangan/form_purchase_page.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
+import 'package:simandika/pages/keuangan/purchase_page.dart';
+import 'package:simandika/pages/keuangan/supplier_page.dart';
 import 'package:simandika/pages/keuangan/transaksi_page.dart';
 import 'package:simandika/pages/user_management_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
@@ -80,7 +82,7 @@ class LayananPageState extends State<LayananPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: ListView.builder(
-                    itemCount: 8,
+                    itemCount: 9,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -141,28 +143,36 @@ class LayananPageState extends State<LayananPage> {
         break;
       case 3:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const PakanPage()));
+            MaterialPageRoute(builder: (context) => const PurchasePage()));
         break;
       case 4:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const FormPurchasePage()));
+            MaterialPageRoute(builder: (context) => const StockMovementPage()));
         break;
       case 5:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerPage()));
+            MaterialPageRoute(builder: (context) => const PakanPage()));
         break;
       case 6:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerPage()));
+        break;
+      case 7:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SupplierPage()));
+        break;
+      case 8:
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
-      case 7:
+      case 9:
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
         break;
-      case 8:
+      case 10:
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -186,10 +196,14 @@ class LayananPageState extends State<LayananPage> {
       case 5:
         return Icons.add_box;
       case 6:
-        return Icons.supervised_user_circle;
+        return Icons.add_box;
       case 7:
-        return Icons.account_balance_wallet;
+        return Icons.add_box;
       case 8:
+        return Icons.supervised_user_circle;
+      case 9:
+        return Icons.account_balance_wallet;
+      case 10:
         return Icons.assignment_add;
       default:
         return Icons.help;
@@ -205,16 +219,20 @@ class LayananPageState extends State<LayananPage> {
       case 2:
         return 'Order';
       case 3:
-        return 'Pakan';
-      case 4:
         return 'Purchase';
+      case 4:
+        return 'Stock Ayam';
       case 5:
-        return 'Customer';
+        return 'Pakan';
       case 6:
-        return 'User Settings';
+        return 'Customer';
       case 7:
-        return 'Laporan Keuangan';
+        return 'Supplier';
       case 8:
+        return 'User Settings';
+      case 9:
+        return 'Laporan Keuangan';
+      case 10:
         return 'Laporan Inventaris';
       default:
         return 'Menu';

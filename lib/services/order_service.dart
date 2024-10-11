@@ -247,15 +247,9 @@ class OrderService {
 
       if (response.statusCode == 200) {
         return true;
-      } else if (response.statusCode == 400) {
-        debugPrint('Error verify payment: Bad Request');
-        throw Exception('Bad Request');
-      } else if (response.statusCode == 401) {
-        debugPrint('Error verify payment: Unauthorized');
-        throw Exception('Unauthorized');
       } else {
-        debugPrint('Error verify payment: ${response.statusCode}');
-        throw Exception('Failed to verify payment');
+        debugPrint(response.body);
+        throw Exception('Failed to add kandang');
       }
     } catch (e) {
       debugPrint('Error verify payment: $e');

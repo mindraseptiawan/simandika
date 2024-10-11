@@ -1,3 +1,5 @@
+import 'package:simandika/models/user_model.dart';
+
 class TransaksiModel {
   final int id;
   final int userId;
@@ -6,6 +8,7 @@ class TransaksiModel {
   final String? keterangan;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final UserModel? user;
 
   TransaksiModel({
     required this.id,
@@ -15,6 +18,7 @@ class TransaksiModel {
     this.keterangan,
     required this.createdAt,
     required this.updatedAt,
+    this.user,
   });
 
   factory TransaksiModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +32,7 @@ class TransaksiModel {
       keterangan: json['keterangan'] ?? '',
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
+      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }
 
@@ -40,6 +45,7 @@ class TransaksiModel {
       'keterangan': keterangan,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'user': user?.toJson(),
     };
   }
 }

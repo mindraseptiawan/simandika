@@ -7,6 +7,7 @@ import 'package:simandika/services/order_service.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simandika/theme.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final int? orderId;
@@ -55,6 +56,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     }
   }
 
+  final statusMap = {
+    'awaiting_payment': 'Awaiting Payment',
+    'payment_verification': 'Verification Payment',
+    'pending': 'Pending',
+    'completed': 'Completed',
+    'cancelled': 'Cancelled',
+  };
+
   Future<void> _fetchOrderDetails() async {
     setState(() {
       _isLoading = true;
@@ -77,13 +86,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         _orderDetails = Future.value(order);
       });
     } catch (e) {
-      setState(() {
-        _errorMessage = 'An error occurred: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'An error occurred: $e';
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -209,6 +222,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           const SnackBar(content: Text('Payment verified successfully')),
         );
         Navigator.pop(context, true);
+        _fetchOrderDetails();
       }
     } catch (e) {
       setState(() {
@@ -292,7 +306,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.orderId != null ? 'Order Details' : 'Invalid Order'),
+        title:
+            const Text('Detail Order', style: TextStyle(color: Colors.white)),
+        backgroundColor: primaryColor,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -318,137 +334,189 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         }
 
                         final order = snapshot.data!;
-                        return SingleChildScrollView(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Order ID: ${order.id}',
-                                  style:
-                                      Theme.of(context).textTheme.titleLarge),
-                              Text('Status: ${order.status}',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium),
-                              Text('Quantity: ${order.quantity}',
-                                  style: Theme.of(context).textTheme.bodyLarge),
-                              Text('Address: ${order.alamat}',
-                                  style: Theme.of(context).textTheme.bodyLarge),
-                              const SizedBox(height: 20),
-                              if (order.status == 'pending') ...[
-                                TextField(
-                                  controller: _priceController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Price per Unit'),
-                                  keyboardType: TextInputType.number,
-                                ),
-                                ElevatedButton(
-                                  onPressed: _setPricePerUnit,
-                                  child: const Text('Set Order Price'),
-                                ),
-                              ] else if (order.status == 'price_set') ...[
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    const Text('Select Kandang: '),
-                                    DropdownButton(
-                                      value: _selectedKandang,
-                                      items: _kandangList
-                                          .where((kandang) =>
-                                              kandang.status == true)
-                                          .map((kandang) => DropdownMenuItem(
-                                                value: kandang.id,
-                                                child: Text(
-                                                    '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})'),
-                                              ))
-                                          .toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedKandang = value;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                ElevatedButton(
-                                  onPressed: _processOrder,
-                                  child: const Text('Process Order'),
-                                ),
-                              ] else if (order.status ==
-                                  'awaiting_payment') ...[
-                                const SizedBox(height: 20),
-                                DropdownButton<String>(
-                                  value: _selectedPaymentMethod,
-                                  items: ['cash', 'transfer']
-                                      .map((method) => DropdownMenuItem<String>(
-                                            value: method,
-                                            child: Text(method.capitalize!),
-                                          ))
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedPaymentMethod = value;
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                                TextField(
-                                  controller: _paymentProofController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Payment Proof (Optional)',
-                                    helperText: _selectedPaymentMethod ==
-                                            'transfer'
-                                        ? 'Recommended for transfer payments'
-                                        : 'Optional for cash payments',
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: _pickImage,
-                                  child: const Text('Pick Payment Proof Image'),
-                                ),
-                                if (_paymentProofPath != null)
-                                  Text('Image selected: $_paymentProofPath'),
-                                ElevatedButton(
-                                  onPressed: _submitPaymentProof,
-                                  child: const Text('Submit Payment'),
-                                ),
-                              ] else if (order.status ==
-                                  'payment_verification') ...[
-                                Text('Payment Method: ${order.paymentMethod}',
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge),
-                                Text(
-                                    'Payment Proof: ${order.paymentProof ?? "tidak ada Dokumen"}',
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge),
-                                ElevatedButton(
-                                  onPressed: _verifyPayment,
-                                  child: const Text('Verify Payment'),
-                                ),
-                              ] else if (order.status == 'completed') ...[
-                                Text(
-                                    'Payment Verified At: ${order.paymentVerifiedAt}',
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge),
-                                Text('Verified By: ${order.paymentVerifiedBy}',
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge),
-                              ],
-                              const SizedBox(height: 20),
-                              if (order.status != 'completed' &&
-                                  order.status != 'cancelled')
-                                ElevatedButton(
-                                  onPressed: _cancelOrder,
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.red,
-                                  ),
-                                  child: const Text('Cancel Order'),
-                                ),
-                            ],
-                          ),
-                        );
+                        return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Card(
+                                elevation: 4,
+                                child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _buildDetailRow(
+                                              'Order ID', '#${order.id}'),
+                                          _buildDetailRow('Customer',
+                                              '${order.customer?.name}'),
+                                          _buildDetailRow(
+                                            'Status',
+                                            statusMap[order.status] ??
+                                                order.status,
+                                          ),
+                                          _buildDetailRow(
+                                              'Quantity', '${order.quantity}'),
+                                          _buildDetailRow(
+                                              'Address', '${order.alamat}'),
+                                          const SizedBox(height: 20),
+                                          if (order.status == 'pending') ...[
+                                            TextField(
+                                              controller: _priceController,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Price per Unit'),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: _setPricePerUnit,
+                                              child:
+                                                  const Text('Set Order Price'),
+                                            ),
+                                          ] else if (order.status ==
+                                              'price_set') ...[
+                                            const SizedBox(height: 20),
+                                            Row(
+                                              children: [
+                                                const Text('Select Kandang: '),
+                                                DropdownButton(
+                                                  value: _selectedKandang,
+                                                  items: _kandangList
+                                                      .where((kandang) =>
+                                                          kandang.status ==
+                                                          true)
+                                                      .map((kandang) =>
+                                                          DropdownMenuItem(
+                                                            value: kandang.id,
+                                                            child: Text(
+                                                                '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})'),
+                                                          ))
+                                                      .toList(),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _selectedKandang = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: _processOrder,
+                                              child:
+                                                  const Text('Process Order'),
+                                            ),
+                                          ] else if (order.status ==
+                                              'awaiting_payment') ...[
+                                            const SizedBox(height: 20),
+                                            DropdownButton<String>(
+                                              value: _selectedPaymentMethod,
+                                              items: ['cash', 'transfer']
+                                                  .map((method) =>
+                                                      DropdownMenuItem<String>(
+                                                        value: method,
+                                                        child: Text(
+                                                            method.capitalize!),
+                                                      ))
+                                                  .toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _selectedPaymentMethod =
+                                                      value;
+                                                });
+                                              },
+                                            ),
+                                            const SizedBox(height: 20),
+                                            TextField(
+                                              controller:
+                                                  _paymentProofController,
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    'Payment Proof (Optional)',
+                                                helperText: _selectedPaymentMethod ==
+                                                        'transfer'
+                                                    ? 'Recommended for transfer payments'
+                                                    : 'Optional for cash payments',
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: _pickImage,
+                                              child: const Text(
+                                                  'Pick Payment Proof Image'),
+                                            ),
+                                            if (_paymentProofPath != null)
+                                              Text(
+                                                  'Image selected: $_paymentProofPath'),
+                                            ElevatedButton(
+                                              onPressed: _submitPaymentProof,
+                                              child:
+                                                  const Text('Submit Payment'),
+                                            ),
+                                          ] else if (order.status ==
+                                              'payment_verification') ...[
+                                            Text(
+                                                'Payment Method: ${order.paymentMethod}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge),
+                                            Text(
+                                                'Payment Proof: ${order.paymentProof ?? "tidak ada Dokumen"}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge),
+                                            ElevatedButton(
+                                              onPressed: _verifyPayment,
+                                              child:
+                                                  const Text('Verify Payment'),
+                                            ),
+                                          ] else if (order.status ==
+                                              'completed') ...[
+                                            Text(
+                                                'Payment Verified At: ${order.paymentVerifiedAt}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge),
+                                            Text(
+                                                'Verified By: ${order.paymentVerifiedBy}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge),
+                                          ],
+                                          const SizedBox(height: 20),
+                                          if (order.status != 'completed' &&
+                                              order.status != 'cancelled')
+                                            ElevatedButton(
+                                              onPressed: _cancelOrder,
+                                              style: ElevatedButton.styleFrom(
+                                                foregroundColor: Colors.white,
+                                                backgroundColor: Colors.red,
+                                              ),
+                                              child: const Text('Cancel Order'),
+                                            ),
+                                        ],
+                                      ),
+                                    ))));
                       },
                     ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: Text(value),
+          ),
+        ],
+      ),
     );
   }
 }

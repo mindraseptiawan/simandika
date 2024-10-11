@@ -9,6 +9,8 @@ class PurchaseModel {
   final int quantity;
   final double pricePerUnit;
   final double totalPrice;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final TransaksiModel? transaction; // Relationship with Transaction
   final SupplierModel? supplier;
 
@@ -19,6 +21,8 @@ class PurchaseModel {
     required this.quantity,
     required this.pricePerUnit,
     required this.totalPrice,
+    required this.createdAt,
+    required this.updatedAt,
     this.transaction,
     this.supplier,
   });
@@ -31,6 +35,8 @@ class PurchaseModel {
       quantity: json['quantity'],
       pricePerUnit: double.parse(json['price_per_unit'].toString()),
       totalPrice: double.parse(json['total_price'].toString()),
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
       transaction: json['transaction'] != null
           ? TransaksiModel.fromJson(json['transaction'])
           : null,
@@ -48,6 +54,8 @@ class PurchaseModel {
       'quantity': quantity,
       'price_per_unit': pricePerUnit.toString(),
       'total_price': totalPrice.toString(),
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
       'transaction': transaction?.toJson(),
       'supplier': supplier?.toJson(),
     };

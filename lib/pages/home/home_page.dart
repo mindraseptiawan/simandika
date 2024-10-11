@@ -214,6 +214,17 @@ class _HomePageState extends State<HomePage>
       );
     }
 
+    Widget _buildLegend(String label, Color color) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 12, height: 12, color: color),
+          SizedBox(width: 4),
+          Text('$label', style: TextStyle(color: Colors.white, fontSize: 12)),
+        ],
+      );
+    }
+
     BarChartGroupData _makeGroupData(int x, double y1, double y2) {
       return BarChartGroupData(
         x: x,
@@ -346,6 +357,15 @@ class _HomePageState extends State<HomePage>
                     fontWeight: FontWeight.bold)),
             SizedBox(height: 16),
             StockChart(dailyQuantity: _dailyQuantity, animation: _animation),
+            SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                _buildLegend('In', Colors.blue),
+                _buildLegend('Out', Colors.orange),
+              ],
+            ),
           ],
         ),
       );
@@ -393,19 +413,50 @@ class StockChart extends StatelessWidget {
   }) : super(key: key);
 
   List<BarChartGroupData> _prepareChartData() {
-    Map<int, Map<String, double>> groupedData = {};
-    for (var entry in dailyQuantity.entries) {
-      int dayOfWeek = entry.key.weekday;
-      if (!groupedData.containsKey(dayOfWeek)) {
-        groupedData[dayOfWeek] = {'in': 0, 'out': 0};
+    // Get the current date
+    final now = DateTime.now();
+
+    // Create a list of the last 7 days
+    List<DateTime> last7Days =
+        List.generate(7, (index) => now.subtract(Duration(days: index)))
+            .map((date) => DateTime(date.year, date.month, date.day))
+            .toList();
+
+    // Filter and sort the data for the last 7 days
+    final lastSevenDaysData = dailyQuantity.entries
+        .where((entry) => last7Days
+            .contains(DateTime(entry.key.year, entry.key.month, entry.key.day)))
+        .toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+
+    // Create a map to store the aggregated data for each day of the week
+    Map<int, Map<String, double>> aggregatedData = {};
+
+    for (var day in last7Days) {
+      int dayOfWeek = day.weekday;
+      aggregatedData[dayOfWeek] = {'in': 0.0, 'out': 0.0};
+
+      for (var entry in lastSevenDaysData) {
+        if (entry.key.year == day.year &&
+            entry.key.month == day.month &&
+            entry.key.day == day.day) {
+          aggregatedData[dayOfWeek]!['in'] =
+              (aggregatedData[dayOfWeek]!['in'] ?? 0) +
+                  (entry.value['in'] ?? 0);
+          aggregatedData[dayOfWeek]!['out'] =
+              (aggregatedData[dayOfWeek]!['out'] ?? 0) +
+                  (entry.value['out'] ?? 0);
+        }
       }
-      groupedData[dayOfWeek]!['in'] =
-          (groupedData[dayOfWeek]!['in'] ?? 0) + (entry.value['in'] ?? 0);
-      groupedData[dayOfWeek]!['out'] =
-          (groupedData[dayOfWeek]!['out'] ?? 0) + (entry.value['out'] ?? 0);
     }
 
-    return groupedData.entries.map((entry) {
+    // Debug: Print aggregated data
+    // print('Aggregated Data for Last 7 Days:');
+    // aggregatedData.forEach((day, data) {
+    //   print('Day $day: In: ${data['in']}, Out: ${data['out']}');
+    // });
+
+    var chartData = aggregatedData.entries.map((entry) {
       return BarChartGroupData(
         x: entry.key,
         barRods: [
@@ -422,6 +473,15 @@ class StockChart extends StatelessWidget {
         ],
       );
     }).toList();
+
+    // Debug: Print final chart data
+    // print('Final Chart Data:');
+    // chartData.forEach((group) {
+    //   print(
+    //       'Day ${group.x}: In: ${group.barRods[0].toY}, Out: ${group.barRods[1].toY}');
+    // });
+
+    return chartData;
   }
 
   @override
@@ -432,71 +492,74 @@ class StockChart extends StatelessWidget {
         (prev, group) => group.barRods
             .fold<double>(prev, (p, rod) => rod.toY > p ? rod.toY : p));
 
+    // // Debug: Print max Y value
+    // print('Max Y value: $maxY');
+
     return AspectRatio(
-        aspectRatio: 1.7,
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: maxY,
-            barTouchData: BarTouchData(enabled: false),
-            titlesData: FlTitlesData(
-              show: true,
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    const weekDays = [
-                      '',
-                      'Mon',
-                      'Tue',
-                      'Wed',
-                      'Thu',
-                      'Fri',
-                      'Sat',
-                      'Sun'
-                    ];
-                    return Text(
-                      weekDays[value.toInt()],
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    );
-                  },
-                ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    return Text(
-                      value.toInt().toString(),
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    );
-                  },
-                  reservedSize: 30,
-                ),
-              ),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            ),
-            gridData: FlGridData(show: false),
-            borderData: FlBorderData(show: false),
-            barGroups: chartGroups,
-            extraLinesData: ExtraLinesData(
-              horizontalLines: [
-                HorizontalLine(
-                  y: maxY,
-                  color: Colors.white.withOpacity(0.5),
-                  strokeWidth: 1,
-                  label: HorizontalLineLabel(
-                    show: true,
-                    labelResolver: (line) => '${line.y.toStringAsFixed(0)}',
+      aspectRatio: 1.7,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: maxY,
+          barTouchData: BarTouchData(enabled: false),
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  const weekDays = [
+                    '',
+                    'Mon',
+                    'Tue',
+                    'Wed',
+                    'Thu',
+                    'Fri',
+                    'Sat',
+                    'Sun'
+                  ];
+                  return Text(
+                    weekDays[value.toInt()],
                     style: TextStyle(color: Colors.white, fontSize: 10),
-                    alignment: Alignment.topRight,
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    value.toInt().toString(),
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  );
+                },
+                reservedSize: 30,
+              ),
+            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-        ));
+          gridData: FlGridData(show: false),
+          borderData: FlBorderData(show: false),
+          barGroups: chartGroups,
+          extraLinesData: ExtraLinesData(
+            horizontalLines: [
+              HorizontalLine(
+                y: maxY,
+                color: Colors.white.withOpacity(0.5),
+                strokeWidth: 1,
+                label: HorizontalLineLabel(
+                  show: true,
+                  labelResolver: (line) => '${line.y.toStringAsFixed(0)}',
+                  style: TextStyle(color: Colors.white, fontSize: 10),
+                  alignment: Alignment.topRight,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

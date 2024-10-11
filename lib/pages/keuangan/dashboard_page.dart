@@ -13,28 +13,70 @@ class DashboardPage extends StatefulWidget {
   _DashboardPageState createState() => _DashboardPageState();
 }
 
-class CashflowChart extends StatelessWidget {
+class CashflowChart extends StatefulWidget {
   final List<CashflowModel> cashflows;
 
   CashflowChart({required this.cashflows});
 
   @override
+  _CashflowChartState createState() => _CashflowChartState();
+}
+
+class _CashflowChartState extends State<CashflowChart> {
+  String _selectedTimeRange = '7 days';
+
+  List<CashflowModel> _getFilteredCashflows() {
+    final now = DateTime.now();
+    if (_selectedTimeRange == '7 days') {
+      return widget.cashflows
+          .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 7))))
+          .toList();
+    } else {
+      return widget.cashflows
+          .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 30))))
+          .toList();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (cashflows.isEmpty) {
+    final filteredCashflows = _getFilteredCashflows();
+    if (filteredCashflows.isEmpty) {
       return Center(child: Text('Tidak ada data cashflows'));
     }
 
-    final latestBalance = cashflows.last.balance;
+    final latestBalance = filteredCashflows.last.balance;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Cashflows',
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: primaryTextColor),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Cashflows',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: primaryTextColor),
+            ),
+            DropdownButton<String>(
+              value: _selectedTimeRange,
+              items: ['7 days', '1 month'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedTimeRange = newValue;
+                  });
+                }
+              },
+            ),
+          ],
         ),
         Text(
           'Rp ${NumberFormat('#,###').format(latestBalance)}',
@@ -51,12 +93,12 @@ class CashflowChart extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 lineBarsData: [
-                  _createLineChartBarData(cashflows, Colors.blue,
+                  _createLineChartBarData(filteredCashflows, Colors.blue,
                       (cf) => cf.type == 'in' ? cf.amount : 0),
-                  _createLineChartBarData(cashflows, Colors.red,
+                  _createLineChartBarData(filteredCashflows, Colors.red,
                       (cf) => cf.type == 'out' ? cf.amount : 0),
                   _createLineChartBarData(
-                      cashflows, Colors.green, (cf) => cf.balance),
+                      filteredCashflows, Colors.green, (cf) => cf.balance),
                 ],
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
@@ -64,10 +106,10 @@ class CashflowChart extends StatelessWidget {
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         if (value.toInt() >= 0 &&
-                            value.toInt() < cashflows.length) {
+                            value.toInt() < filteredCashflows.length) {
                           return Text(
                             DateFormat('dd/MM')
-                                .format(cashflows[value.toInt()].date),
+                                .format(filteredCashflows[value.toInt()].date),
                             style: TextStyle(
                                 fontSize: 10, color: primaryTextColor),
                           );

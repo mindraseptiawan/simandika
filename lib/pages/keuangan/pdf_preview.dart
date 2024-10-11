@@ -9,10 +9,14 @@ import 'package:share_plus/share_plus.dart';
 class PDFPreviewPage extends StatelessWidget {
   final Uint8List pdfBytes;
   final String fileName;
+  final String reportTitle;
 
-  const PDFPreviewPage(
-      {Key? key, required this.pdfBytes, required this.fileName})
-      : super(key: key);
+  const PDFPreviewPage({
+    Key? key,
+    required this.pdfBytes,
+    required this.fileName,
+    required this.reportTitle,
+  }) : super(key: key);
 
   Future<void> _savePDF() async {
     final output = await getApplicationDocumentsDirectory();
@@ -20,14 +24,14 @@ class PDFPreviewPage extends StatelessWidget {
     await file.writeAsBytes(pdfBytes);
 
     // Share the file
-    await Share.shareXFiles([XFile(file.path)], text: 'Laporan Transaksi');
+    await Share.shareXFiles([XFile(file.path)], text: reportTitle);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Preview PDF'),
+        title: Text('Preview $reportTitle'),
         actions: [
           IconButton(
             icon: const Icon(Icons.download),

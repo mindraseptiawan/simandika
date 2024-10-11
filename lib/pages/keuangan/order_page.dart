@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/order_model.dart';
+import 'package:simandika/models/sale_model.dart';
 import 'package:simandika/pages/keuangan/form_order_page.dart';
 import 'package:simandika/pages/keuangan/order_detail_page.dart';
+import 'package:simandika/pages/keuangan/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/sale_pdf_generator.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({Key? key}) : super(key: key);
@@ -18,12 +22,16 @@ class OrderPageState extends State<OrderPage>
     with SingleTickerProviderStateMixin {
   late Future<List<OrderModel>> _orderData;
   List<OrderModel> _orders = [];
+  List<SaleModel> filteredSales = [];
   List<OrderModel> _pendingOrders = [];
   List<OrderModel> _priceSetOrders = [];
   List<OrderModel> _awaitingPaymentOrders = [];
   List<OrderModel> _paymentVerificationsOrders = [];
   List<OrderModel> _completedOrders = [];
   bool _showFab = true;
+  String reportType = 'Penjualan';
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _endDate = DateTime.now();
 
   final TextEditingController _searchController = TextEditingController();
   late TabController _tabController;
@@ -73,6 +81,54 @@ class OrderPageState extends State<OrderPage>
     });
   }
 
+  Future<void> _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
+  Future<void> _generateAndPreviewPDF() async {
+    if (_orders.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada order untuk dibuat PDF')),
+      );
+      return;
+    }
+
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak dapat mengakses token')),
+      );
+      return;
+    }
+
+    final pdfBytes = await generateSalesPDF(
+        filteredSales, _startDate, _endDate, token, reportType);
+    final fileName =
+        'orders_${DateFormat('yyyyMMdd').format(_startDate)}_${DateFormat('yyyyMMdd').format(_endDate)}.pdf';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFPreviewPage(
+          pdfBytes: pdfBytes,
+          fileName: fileName,
+          reportTitle: 'Laporan Order',
+        ),
+      ),
+    );
+  }
+
   List<OrderModel> _filterOrdersByStatus(String status, String query) {
     return _orders.where((order) {
       final dateString = '${order.day}-${order.month}-${order.year}';
@@ -115,6 +171,14 @@ class OrderPageState extends State<OrderPage>
     ];
     return months[month - 1];
   }
+
+  final statusMap = {
+    'awaiting_payment': 'Awaiting Payment',
+    'payment_verification': 'Verification Payment',
+    'pending': 'Pending',
+    'completed': 'Completed',
+    'cancelled': 'Cancelled',
+  };
 
   Widget _buildOrderList(List<OrderModel> orders) {
     return ListView.builder(
@@ -186,7 +250,7 @@ class OrderPageState extends State<OrderPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${order.id}',
+                          'Order ID #${order.id}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -200,7 +264,7 @@ class OrderPageState extends State<OrderPage>
                           ),
                         ),
                         Text(
-                          order.status,
+                          statusMap[order.status] ?? order.status,
                           style: const TextStyle(
                             color: Colors.white,
                           ),
@@ -229,6 +293,15 @@ class OrderPageState extends State<OrderPage>
       appBar: AppBar(
         title: const Text('Order List', style: TextStyle(color: Colors.white)),
         backgroundColor: primaryColor,
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await _selectDateRange();
+              await _generateAndPreviewPDF();
+            },
+            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
