@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/supplier_model.dart';
+import 'package:simandika/pages/keuangan/detail_purchase_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/supplier_service.dart';
 import 'package:simandika/theme.dart';
@@ -61,15 +62,20 @@ class SupplierPageState extends State<SupplierPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Supplier', style: TextStyle(color: Colors.white)),
+        title: const Text('Supplier',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () {
               // Action for PDF button
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -85,7 +91,9 @@ class SupplierPageState extends State<SupplierPage> {
               },
               decoration: InputDecoration(
                 hintText: 'Cari supplier ...',
-                prefixIcon: const Icon(Icons.search),
+                suffixIcon: const Icon(Icons.search),
+                filled: true, // Enable filling
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -100,46 +108,50 @@ class SupplierPageState extends State<SupplierPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                        child: Text(
+                            'Error: ${snapshot.error},style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white)'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Data Kosong'));
+                    return const Center(
+                        child: Text('Data Kosong',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)));
                   } else {
-                    // Display filtered customers
+                    // Display filtered suppliers
                     return ListView.builder(
                       itemCount: _filteredSuppliers.length,
                       itemBuilder: (context, index) {
-                        var customer = _filteredSuppliers[index];
+                        var supplier = _filteredSuppliers[index];
                         return ListTile(
                           title: Text(
-                            customer.name,
+                            supplier.name,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: primaryColor,
                             ),
                           ),
                           subtitle: Text(
-                            '${customer.phone ?? 'No Phone'} - ${customer.alamat ?? 'No Address'}',
-                            style: const TextStyle(color: Colors.grey),
+                            '${supplier.phone ?? 'No Phone'} - ${supplier.alamat ?? 'No Address'}',
+                            style: const TextStyle(color: Colors.white),
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            // Navigate to DetailOrderPage with customer ID
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPurchasePage(
+                                    supplierId: supplier.id,
+                                    supplierName: supplier
+                                        .name), //HARUS HUBUNNGIN KE TABEL ORDER
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   }
                 },
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Add customer action
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Tambah Customer',
-                  style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                minimumSize: const Size.fromHeight(50),
               ),
             ),
           ],

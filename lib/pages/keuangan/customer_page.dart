@@ -62,15 +62,20 @@ class CustomerPageState extends State<CustomerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Customer', style: TextStyle(color: Colors.white)),
+        title: const Text('Customer',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () {
               // Action for PDF button
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -86,7 +91,9 @@ class CustomerPageState extends State<CustomerPage> {
               },
               decoration: InputDecoration(
                 hintText: 'Cari customer ...',
-                prefixIcon: const Icon(Icons.search),
+                suffixIcon: const Icon(Icons.search),
+                filled: true, // Enable filling
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -120,7 +127,7 @@ class CustomerPageState extends State<CustomerPage> {
                           ),
                           subtitle: Text(
                             '${customer.phone ?? 'No Phone'} - ${customer.alamat ?? 'No Address'}',
-                            style: const TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           onTap: () {
                             // Navigate to DetailOrderPage with customer ID
@@ -139,19 +146,6 @@ class CustomerPageState extends State<CustomerPage> {
                     );
                   }
                 },
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Add customer action
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Tambah Customer',
-                  style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                minimumSize: const Size.fromHeight(50),
               ),
             ),
           ],

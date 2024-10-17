@@ -34,10 +34,12 @@ class _TransaksiDetailPageState extends State<TransaksiDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
         title: const Text('Detail Transaksi',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<TransaksiModel>(
         future: _transactionFuture,
@@ -54,6 +56,7 @@ class _TransaksiDetailPageState extends State<TransaksiDetailPage> {
               padding: const EdgeInsets.all(16.0),
               child: Card(
                 elevation: 4,
+                color: primaryColor,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -64,7 +67,7 @@ class _TransaksiDetailPageState extends State<TransaksiDetailPage> {
                         style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: primaryColor),
+                            color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       _buildDetailRow('ID Transaksi', '#${transaction.id}'),
@@ -112,11 +115,12 @@ class _TransaksiDetailPageState extends State<TransaksiDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(value, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

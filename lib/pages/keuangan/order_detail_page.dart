@@ -298,10 +298,12 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title:
-            const Text('Detail Order', style: TextStyle(color: Colors.white)),
+        title: const Text('Detail Order',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -331,6 +333,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             padding: const EdgeInsets.all(16.0),
                             child: Card(
                                 elevation: 4,
+                                color: primaryColor,
                                 child: Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: SingleChildScrollView(
@@ -370,7 +373,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             const SizedBox(height: 20),
                                             Row(
                                               children: [
-                                                const Text('Select Kandang: '),
+                                                const Text(
+                                                  'Select Kandang: ',
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                ),
                                                 DropdownButton(
                                                   value: _selectedKandang,
                                                   items: _kandangList
@@ -381,7 +388,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                           DropdownMenuItem(
                                                             value: kandang.id,
                                                             child: Text(
-                                                                '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})'),
+                                                                '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
+                                                                style: const TextStyle(
+                                                                    color: Colors
+                                                                        .black)),
                                                           ))
                                                       .toList(),
                                                   onChanged: (value) {
@@ -394,8 +404,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             ),
                                             ElevatedButton(
                                               onPressed: _processOrder,
-                                              child:
-                                                  const Text('Process Order'),
+                                              child: const Text('Process Order',
+                                                  style: const TextStyle(
+                                                      color: Colors.black)),
                                             ),
                                           ] else if (order.status ==
                                               'awaiting_payment') ...[
@@ -407,7 +418,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                       DropdownMenuItem<String>(
                                                         value: method,
                                                         child: Text(
-                                                            method.capitalize!),
+                                                            method.capitalize!,
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .black)),
                                                       ))
                                                   .toList(),
                                               onChanged: (value) {
@@ -422,39 +437,44 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                               controller:
                                                   _paymentProofController,
                                               decoration: InputDecoration(
-                                                labelText:
-                                                    'Payment Proof (Optional)',
-                                                helperText: _selectedPaymentMethod ==
-                                                        'transfer'
-                                                    ? 'Recommended for transfer payments'
-                                                    : 'Optional for cash payments',
-                                              ),
+                                                  labelText:
+                                                      'Payment Proof (Optional)',
+                                                  labelStyle: const TextStyle(
+                                                      color: Colors.white),
+                                                  helperText: _selectedPaymentMethod ==
+                                                          'transfer'
+                                                      ? 'Recommended for transfer payments'
+                                                      : 'Optional for cash payments',
+                                                  helperStyle: const TextStyle(
+                                                      color: Colors.white)),
                                             ),
                                             ElevatedButton(
                                               onPressed: _pickImage,
                                               child: const Text(
-                                                  'Pick Payment Proof Image'),
+                                                  'Pick Payment Proof Image',
+                                                  style: const TextStyle(
+                                                      color: Colors.black)),
                                             ),
                                             if (_paymentProofPath != null)
                                               Text(
                                                   'Image selected: $_paymentProofPath'),
                                             ElevatedButton(
                                               onPressed: _submitPaymentProof,
-                                              child:
-                                                  const Text('Submit Payment'),
+                                              child: const Text(
+                                                  'Submit Payment',
+                                                  style: const TextStyle(
+                                                      color: Colors.black)),
                                             ),
                                           ] else if (order.status ==
                                               'payment_verification') ...[
                                             Text(
                                                 'Payment Method: ${order.paymentMethod}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge),
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
                                             Text(
                                                 'Payment Proof: ${order.paymentProof ?? "tidak ada Dokumen"}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge),
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
                                             ElevatedButton(
                                               onPressed: _verifyPayment,
                                               child:
@@ -464,14 +484,12 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                               'completed') ...[
                                             Text(
                                                 'Payment Verified At: ${order.paymentVerifiedAt}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge),
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
                                             Text(
                                                 'Verified By: ${order.paymentVerifiedBy}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge),
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
                                           ],
                                           const SizedBox(height: 20),
                                           if (order.status != 'completed' &&
@@ -502,11 +520,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

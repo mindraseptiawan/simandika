@@ -118,17 +118,21 @@ class StockMovementPageState extends State<StockMovementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
         title: const Text('Pergerakan Stok',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () async {
               await _selectDateRange();
               await _generateAndPreviewPDF();
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -140,7 +144,9 @@ class StockMovementPageState extends State<StockMovementPage> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari tipe, alasan, atau tanggal pergerakan stok ...',
-                prefixIcon: const Icon(Icons.search),
+                suffixIcon: const Icon(Icons.search),
+                filled: true, // Enable filling
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -177,15 +183,15 @@ class StockMovementPageState extends State<StockMovementPage> {
                             children: [
                               Text(
                                 'Tipe: ${movement.type}',
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.white),
                               ),
                               Text(
                                 'Alasan: ${movement.reason}',
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.white),
                               ),
                               Text(
                                 formattedDate,
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),

@@ -63,4 +63,21 @@ class PurchaseModel {
       'supplier': supplier?.toJson(),
     };
   }
+
+  // Helper method to parse the orderDate string into a DateTime object
+  DateTime get purchaseDateTime => (createdAt);
+
+  // Helper method to get the day of the month
+  int get day => purchaseDateTime.day;
+
+  // Helper method to get the month (1-12)
+  int get month => purchaseDateTime.month;
+
+  // Helper method to get the year
+  int get year => purchaseDateTime.year;
+
+  // Helper method to compare purchase dates for sorting
+  int compareTo(PurchaseModel other) {
+    return other.purchaseDateTime.compareTo(purchaseDateTime);
+  }
 }

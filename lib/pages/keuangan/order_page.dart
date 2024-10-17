@@ -290,16 +290,21 @@ class OrderPageState extends State<OrderPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Order List', style: TextStyle(color: Colors.white)),
+        title: const Text('Order List',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () async {
               await _selectDateRange();
               await _generateAndPreviewPDF();
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
         bottom: TabBar(
@@ -319,19 +324,20 @@ class OrderPageState extends State<OrderPage>
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Cari Order',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Cari Order ...',
+                suffixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
           Expanded(
             child: TabBarView(
               controller: _tabController,

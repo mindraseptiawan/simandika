@@ -47,6 +47,28 @@ class PurchaseService {
     }
   }
 
+  Future<List<PurchaseModel>> getPurchaseBySupplierId(
+      String token, int supplierId) async {
+    var url = Uri.parse('$_baseUrl/purchases/supplier/$supplierId');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      List<dynamic> purchasesData = jsonResponse['data'];
+      List<PurchaseModel> purchases =
+          purchasesData.map((item) => PurchaseModel.fromJson(item)).toList();
+      return purchases;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load purchase');
+    }
+  }
+
   // Method to create a new purchase
   Future<bool> createPurchase(
       Map<String, dynamic> purchaseData, String token) async {

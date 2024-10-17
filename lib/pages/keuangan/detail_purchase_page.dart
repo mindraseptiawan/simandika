@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:simandika/models/order_model.dart';
+import 'package:simandika/models/purchase_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
-import 'package:simandika/services/order_service.dart';
+import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/theme.dart';
 
-class DetailOrderPage extends StatefulWidget {
-  final String customerName;
-  final int customerId;
-  const DetailOrderPage(
-      {super.key, required this.customerId, required this.customerName});
+class DetailPurchasePage extends StatefulWidget {
+  final String supplierName;
+  final int supplierId;
+  const DetailPurchasePage(
+      {super.key, required this.supplierId, required this.supplierName});
 
   @override
-  DetailOrderPageState createState() => DetailOrderPageState();
+  DetailPurchasePageState createState() => DetailPurchasePageState();
 }
 
-class DetailOrderPageState extends State<DetailOrderPage> {
-  late Future<List<OrderModel>> _orderData;
-  List<OrderModel> _orders = []; // To store all Orders
-  List<OrderModel> _filteredOrders = [];
+class DetailPurchasePageState extends State<DetailPurchasePage> {
+  late Future<List<PurchaseModel>> _purchaseData;
+  List<PurchaseModel> _purchases = []; // To store all Orders
+  List<PurchaseModel> _filteredPurchases = [];
   // ignore: unused_field
   final String _searchQuery = '';
   final TextEditingController _searchController =
@@ -29,17 +30,17 @@ class DetailOrderPageState extends State<DetailOrderPage> {
     super.initState();
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     if (token != null) {
-      _orderData =
-          OrderService().getOrdersByCustomerId(token, widget.customerId);
-      _orderData.then((data) {
+      _purchaseData =
+          PurchaseService().getPurchaseBySupplierId(token, widget.supplierId);
+      _purchaseData.then((data) {
         setState(() {
-          data.sort((a, b) => b.orderDate.compareTo(a.orderDate));
-          _orders = data;
-          _filteredOrders = data;
+          data.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          _purchases = data;
+          _filteredPurchases = data;
         });
       });
     } else {
-      _orderData = Future.error('Invalid token');
+      _purchaseData = Future.error('Invalid token');
     }
     _searchController.addListener(_filterOrders);
   }
@@ -53,10 +54,10 @@ class DetailOrderPageState extends State<DetailOrderPage> {
   void _filterOrders() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredOrders = _orders.where((order) {
-        final dateString = '${order.day}-${order.month}-${order.year}';
-        final statusLower = order.status.toLowerCase();
-        return dateString.contains(query) || statusLower.contains(query);
+      _filteredPurchases = _purchases.where((purchase) {
+        final dateString = '${purchase.day}-${purchase.month}-${purchase.year}';
+
+        return dateString.contains(query);
       }).toList();
     });
   }
@@ -84,7 +85,7 @@ class DetailOrderPageState extends State<DetailOrderPage> {
     return Scaffold(
       backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: Text(widget.customerName,
+        title: Text(widget.supplierName,
             style: const TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
@@ -101,7 +102,7 @@ class DetailOrderPageState extends State<DetailOrderPage> {
                 // Filtering is handled by listener
               },
               decoration: InputDecoration(
-                hintText: 'Cari order ...',
+                hintText: 'Cari purchase ...',
                 suffixIcon: const Icon(Icons.search),
                 filled: true, // Enable filling
                 fillColor: Colors.white,
@@ -113,8 +114,8 @@ class DetailOrderPageState extends State<DetailOrderPage> {
             const SizedBox(height: 16.0),
             // Display the transaction list
             Expanded(
-              child: FutureBuilder<List<OrderModel>>(
-                future: _orderData,
+              child: FutureBuilder<List<PurchaseModel>>(
+                future: _purchaseData,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -134,9 +135,9 @@ class DetailOrderPageState extends State<DetailOrderPage> {
                     // Display all orders for now
 
                     return ListView.builder(
-                      itemCount: _filteredOrders.length,
+                      itemCount: _filteredPurchases.length,
                       itemBuilder: (context, index) {
-                        final order = _filteredOrders[index];
+                        final purchase = _filteredPurchases[index];
 
                         return GestureDetector(
                           onTap: () {
@@ -172,7 +173,7 @@ class DetailOrderPageState extends State<DetailOrderPage> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            order.day.toString(),
+                                            purchase.day.toString(),
                                             style: TextStyle(
                                               color: secondaryColor,
                                               fontSize: 18,
@@ -180,14 +181,14 @@ class DetailOrderPageState extends State<DetailOrderPage> {
                                             ),
                                           ),
                                           Text(
-                                            _formatMonth(order.month),
+                                            _formatMonth(purchase.month),
                                             style: TextStyle(
                                               color: secondaryColor,
                                               fontSize: 12,
                                             ),
                                           ),
                                           Text(
-                                            '${order.year}',
+                                            '${purchase.year}',
                                             style: TextStyle(
                                               color: secondaryColor,
                                               fontSize: 12,
@@ -204,20 +205,20 @@ class DetailOrderPageState extends State<DetailOrderPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${order.day} ${_formatMonth(order.month)} ${order.year}',
+                                          '${purchase.day} ${_formatMonth(purchase.month)} ${purchase.year}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          order.status,
+                                          'Jumlah Ayam: ${purchase.quantity}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                           ),
                                         ),
                                         Text(
-                                          'Jumlah Ayam: ${order.quantity}',
+                                          'Total Price: ${NumberFormat.currency(locale: 'id_ID', decimalDigits: 2).format(purchase.totalPrice)}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                           ),

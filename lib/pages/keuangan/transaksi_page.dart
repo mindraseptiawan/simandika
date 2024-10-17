@@ -130,16 +130,21 @@ class TransaksiPageState extends State<TransaksiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Transaksi', style: TextStyle(color: Colors.white)),
+        title: const Text('Transaksi',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () async {
               await _selectDateRange();
               await _generateAndPreviewPDF();
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ],
       ),
@@ -154,12 +159,17 @@ class TransaksiPageState extends State<TransaksiPage> {
                 // Filtering is handled by listener
               },
               decoration: InputDecoration(
-                hintText: 'Cari transaksi ...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Cari Transaksi ...',
+                suffixIcon:
+                    const Icon(Icons.search, color: Colors.black), // Icon color
+                filled: true, // Enable filling
+                fillColor: Colors.white, // Background color
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide(color: Colors.white), // Border color
                 ),
               ),
+              style: const TextStyle(color: Colors.black), // Text color
             ),
             const SizedBox(height: 16.0),
             // Display the transaction list
@@ -196,11 +206,11 @@ class TransaksiPageState extends State<TransaksiPage> {
                                 children: [
                                   Text(
                                     formattedDate,
-                                    style: const TextStyle(color: Colors.grey),
+                                    style: const TextStyle(color: Colors.white),
                                   ),
                                   Text(
                                     '${transaksi.keterangan}',
-                                    style: const TextStyle(color: Colors.grey),
+                                    style: const TextStyle(color: Colors.white),
                                   )
                                 ],
                               ),
@@ -210,8 +220,8 @@ class TransaksiPageState extends State<TransaksiPage> {
                                     : 'Proses',
                                 style: TextStyle(
                                   color: transaksi.amount != null
-                                      ? Colors.black
-                                      : Colors.orange,
+                                      ? Colors.white
+                                      : Colors.red,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

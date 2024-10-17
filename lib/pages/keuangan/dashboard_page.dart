@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/cashflow_model.dart';
@@ -365,12 +366,13 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Dashboard',
-          style: TextStyle(color: primaryTextColor),
-        ),
-        backgroundColor: Color(0xFF6750A4),
-      ),
+          title: Text(
+            'Dashboard',
+            style:
+                TextStyle(color: primaryTextColor, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Color(0xFF6750A4),
+          iconTheme: IconThemeData(color: Colors.white)),
       body: _cashflows == null
           ? Center(child: CircularProgressIndicator())
           : Container(

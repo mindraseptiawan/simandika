@@ -132,16 +132,21 @@ class PurchasePageState extends State<PurchasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Pembelian', style: TextStyle(color: Colors.white)),
+        title: const Text('Pembelian',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: () async {
               await _selectDateRange();
               await _generateAndPreviewPDF();
             },
-            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('PDF',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -153,13 +158,14 @@ class PurchasePageState extends State<PurchasePage> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari nama supplier atau tanggal pembelian ...',
-                prefixIcon: const Icon(Icons.search),
+                suffixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
             Expanded(
               child: FutureBuilder<List<PurchaseModel>>(
                 future: _purchaseData,
@@ -190,18 +196,18 @@ class PurchasePageState extends State<PurchasePage> {
                             children: [
                               Text(
                                 'Supplier: ${purchase.supplier?.name ?? 'Unknown'}',
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.white),
                               ),
                               Text(
                                 formattedDate,
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),
                           trailing: Text(
                             '${NumberFormat.currency(locale: 'id_ID', decimalDigits: 2).format(purchase.totalPrice)}',
                             style: const TextStyle(
-                              color: Colors.orange,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

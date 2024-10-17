@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage>
             (dailyQuantity[date]!['out'] ?? 0) + data.quantity;
       }
     }
-
+    if (!mounted) return;
     setState(() {
       _totalInQuantity = totalInQuantity;
       _totalOutQuantity = totalOutQuantity;
@@ -159,6 +159,7 @@ class _HomePageState extends State<HomePage>
     // debugPrint('Total Waiting: $awaitingPaymentCount');
     // debugPrint('Total Completed: $completedCount');
     // Update UI dengan jumlah order yang diterima
+    if (!mounted) return;
     setState(() {
       _pendingCount = pendingCount;
       _awaitingPaymentCount = awaitingPaymentCount;

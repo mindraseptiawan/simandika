@@ -121,8 +121,9 @@ class FormOrderPageState extends State<FormOrderPage> {
       backgroundColor: backgroundColor1,
       appBar: AppBar(
         title: const Text('Form Tambah Order',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -160,14 +161,14 @@ class FormOrderPageState extends State<FormOrderPage> {
                   label: 'Alamat Customer',
                   controller: _alamatController,
                   hintText: 'Alamat Customer',
-                  iconPath: 'assets/icon_name.png',
+                  iconPath: 'assets/alamat.png',
                 ),
                 const SizedBox(height: 20),
                 _buildInputField(
                   label: 'Jumlah Ayam',
                   controller: _quantityController,
                   hintText: 'Jumlah Order',
-                  iconPath: 'assets/icon_name.png',
+                  iconPath: 'assets/jumlah.png',
                 ),
                 const SizedBox(height: 50),
                 SizedBox(

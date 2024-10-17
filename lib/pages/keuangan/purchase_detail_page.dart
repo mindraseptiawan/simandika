@@ -96,10 +96,12 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor1,
       appBar: AppBar(
         title: const Text('Detail Purchase',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<PurchaseModel>(
         future: _purchaseFuture,
@@ -119,6 +121,7 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
                 children: [
                   Card(
                     elevation: 4,
+                    color: primaryColor,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -129,7 +132,7 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
                             style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: primaryColor),
+                                color: Colors.white),
                           ),
                           const SizedBox(height: 16),
                           _buildDetailRow('ID Pembelian', '#${purchase.id}'),
@@ -145,27 +148,32 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
                               NumberFormat.currency(
                                       locale: 'id_ID ', decimalDigits: 2)
                                   .format(purchase.totalPrice)),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => _editPurchase(purchase),
+                                child: Text(
+                                  'Update',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => _deletePurchase(purchase.id),
+                                child: Text('Delete',
+                                    style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => _editPurchase(purchase),
-                        child: Text('Edit'),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => _deletePurchase(purchase.id),
-                        child: Text('Delete'),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -186,11 +194,15 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
