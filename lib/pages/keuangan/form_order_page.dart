@@ -4,6 +4,7 @@ import 'package:simandika/models/order_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class FormOrderPage extends StatefulWidget {
   final OrderModel? order;
@@ -51,15 +52,12 @@ class FormOrderPageState extends State<FormOrderPage> {
 
     try {
       await OrderService().createOrder(orderData, token!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order berhasil dibuat')),
-      );
+      showCustomSnackBar(
+          context, 'Order berhasil dibuat', SnackBarType.success);
       Navigator.pop(context, true);
     } catch (e) {
       debugPrint('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal mmmembuat order')),
-      );
+      showCustomSnackBar(context, 'Gagal mmmembuat order!', SnackBarType.error);
       Navigator.pop(context, true);
     }
   }

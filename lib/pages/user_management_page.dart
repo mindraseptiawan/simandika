@@ -4,6 +4,7 @@ import 'package:simandika/models/user_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/user_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -32,9 +33,7 @@ class UserManagementPageState extends State<UserManagementPage> {
     try {
       users = await userService.getUsers(token!);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load users')),
-      );
+      showCustomSnackBar(context, 'Failed to load users', SnackBarType.error);
     } finally {
       setState(() {
         isLoading = false;
@@ -49,9 +48,7 @@ class UserManagementPageState extends State<UserManagementPage> {
       await userService.deleteUser(userId, token!);
       getUsers();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete user')),
-      );
+      showCustomSnackBar(context, 'Failed to delete user!', SnackBarType.error);
     }
   }
 
@@ -69,9 +66,8 @@ class UserManagementPageState extends State<UserManagementPage> {
       await UserService.updateUser(updatedUser);
       getUsers();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update user status')),
-      );
+      showCustomSnackBar(
+          context, 'Failed to update user status!', SnackBarType.error);
     }
   }
 
@@ -80,13 +76,11 @@ class UserManagementPageState extends State<UserManagementPage> {
     final token = authProvider.user.token;
     try {
       await userService.assignRole(userId, role, token!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Role assigned successfully')),
-      );
+
+      showCustomSnackBar(
+          context, 'Role assigned successfully!', SnackBarType.success);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to assign role')),
-      );
+      showCustomSnackBar(context, 'Failed to assign role!', SnackBarType.error);
     }
   }
 

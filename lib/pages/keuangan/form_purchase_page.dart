@@ -6,10 +6,11 @@ import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class FormPurchasePage extends StatefulWidget {
   final PurchaseModel? purchase;
-  const FormPurchasePage({super.key, this.purchase});
+  const FormPurchasePage({Key? key, this.purchase}) : super(key: key);
 
   @override
   FormPurchasePageState createState() => FormPurchasePageState();
@@ -29,11 +30,35 @@ class FormPurchasePageState extends State<FormPurchasePage> {
   void initState() {
     super.initState();
     _loadKandangs();
-    _supplierNameController = TextEditingController();
-    _supplierPhoneController = TextEditingController();
-    _quantityController = TextEditingController();
-    _alamatController = TextEditingController();
-    _priceController = TextEditingController();
+    _supplierNameController =
+        TextEditingController(text: widget.purchase?.supplier?.name ?? '');
+    _supplierPhoneController =
+        TextEditingController(text: widget.purchase?.supplier?.phone ?? '');
+    _quantityController =
+        TextEditingController(text: widget.purchase?.quantity.toString() ?? '');
+    _alamatController =
+        TextEditingController(text: widget.purchase?.supplier?.alamat ?? '');
+    _priceController = TextEditingController(
+        text: widget.purchase?.pricePerUnit.toString() ?? '');
+  }
+
+  Future<void> _loadKandangs() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.user.token;
+    try {
+      final kandangs = await _kandangService.getKandangs(token!);
+      setState(() {
+        _kandangs = kandangs;
+        if (widget.purchase != null && _kandangs.isNotEmpty) {
+          _selectedKandang = _kandangs.firstWhere(
+            (kandang) => kandang.id == widget.purchase!.kandangId,
+            orElse: () => _kandangs.first,
+          );
+        }
+      });
+    } catch (e) {
+      print('Failed to load kandangs: $e');
+    }
   }
 
   @override
@@ -46,51 +71,56 @@ class FormPurchasePageState extends State<FormPurchasePage> {
     super.dispose();
   }
 
-  Future<void> _loadKandangs() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final token = authProvider.user.token;
-    try {
-      final kandangs = await _kandangService.getKandangs(token!);
-      setState(() {
-        _kandangs = kandangs;
-      });
-    } catch (e) {
-      // Handle error
-      print('Failed to load kandangs: $e');
-    }
-  }
-
   Future<void> _savePurchase() async {
     if (_selectedKandang == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih kandang dan masukkan jumlah ayam')),
-      );
+      showCustomSnackBar(context, 'Pilih kandang dan masukkan jumlah ayam',
+          SnackBarType.error);
       return;
     }
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.user.token;
 
+    // Validate and parse input
+    int? quantity = int.tryParse(_quantityController.text);
+    double? pricePerUnit = double.tryParse(_priceController.text);
+
+    if (quantity == null || pricePerUnit == null) {
+      showCustomSnackBar(context, 'Jumlah dan harga harus berupa angka valid',
+          SnackBarType.error);
+      return;
+    }
+
     final purchaseData = {
       'supplier_name': _supplierNameController.text,
       'supplier_phone': _supplierPhoneController.text,
-      'quantity': int.parse(_quantityController.text),
+      'quantity': quantity,
       'alamat': _alamatController.text,
-      'price_per_unit': _priceController.text,
-      'kandang_id': _selectedKandang?.id,
+      'price_per_unit': pricePerUnit,
+      'kandang_id': _selectedKandang!.id,
     };
 
     try {
-      await PurchaseService().createPurchase(purchaseData, token!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order berhasil dibuat')),
-      );
+      if (widget.purchase == null) {
+        await PurchaseService().createPurchase(purchaseData, token!);
+
+        showCustomSnackBar(
+            context, 'Order berhasil dibuat', SnackBarType.success);
+      } else {
+        final updatedPurchase = await PurchaseService()
+            .updatePurchase(widget.purchase!.id, purchaseData, token!);
+        debugPrint(
+            'Updated purchase: $updatedPurchase'); // Log pembelian yang diperbarui
+        showCustomSnackBar(
+            context, 'Order berhasil diperbarui', SnackBarType.success);
+      }
       Navigator.pop(context, true);
     } catch (e) {
       debugPrint('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal mmmembuat order')),
-      );
-      Navigator.pop(context, true);
+
+      showCustomSnackBar(
+          context,
+          'Gagal ${widget.purchase == null ? 'membuat' : 'memperbarui'} order: ${e.toString()}',
+          SnackBarType.error);
     }
   }
 
@@ -152,7 +182,10 @@ class FormPurchasePageState extends State<FormPurchasePage> {
     return Scaffold(
       backgroundColor: backgroundColor1,
       appBar: AppBar(
-        title: const Text('Form Pembelian Ayam',
+        title: Text(
+            widget.purchase == null
+                ? 'Form Pembelian Ayam'
+                : 'Edit Pembelian Ayam',
             style: TextStyle(color: Colors.white)),
         backgroundColor: primaryColor,
       ),
@@ -165,7 +198,9 @@ class FormPurchasePageState extends State<FormPurchasePage> {
               children: [
                 Center(
                   child: Text(
-                    'Informasi Purchase',
+                    widget.purchase == null
+                        ? 'Informasi Purchase'
+                        : 'Edit Purchase',
                     style: primaryTextStyle.copyWith(
                       fontSize: 20,
                       color: Colors.white,
@@ -250,7 +285,9 @@ class FormPurchasePageState extends State<FormPurchasePage> {
                       ),
                     ),
                     child: Text(
-                      'Masukkan Pembelian Ayam',
+                      widget.purchase == null
+                          ? 'Masukkan Pembelian Ayam'
+                          : 'Perbarui Pembelian Ayam',
                       style: primaryTextStyle.copyWith(
                           fontSize: 16, fontWeight: bold),
                     ),

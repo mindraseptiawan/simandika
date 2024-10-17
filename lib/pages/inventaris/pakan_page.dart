@@ -5,6 +5,7 @@ import 'package:simandika/pages/inventaris/form_pakan_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/pakan_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class PakanPage extends StatefulWidget {
   const PakanPage({super.key});
@@ -33,9 +34,7 @@ class PakanPageState extends State<PakanPage> {
     try {
       pakans = await pakanService.getPakan(token!);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load pakan')),
-      );
+      showCustomSnackBar(context, 'Failed to load pakan!', SnackBarType.error);
     } finally {
       setState(() {
         isLoading = false;
@@ -50,9 +49,8 @@ class PakanPageState extends State<PakanPage> {
       await pakanService.deletePakan(id, token!);
       getPakan();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete pakan')),
-      );
+      showCustomSnackBar(
+          context, 'Failed to delete pakan!', SnackBarType.error);
     }
   }
 

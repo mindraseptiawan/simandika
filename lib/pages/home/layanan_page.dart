@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simandika/pages/inventaris/ayam_page.dart';
 import 'package:simandika/pages/inventaris/stock_movement_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
@@ -82,7 +83,7 @@ class LayananPageState extends State<LayananPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: ListView.builder(
-                    itemCount: 9,
+                    itemCount: 10,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -98,11 +99,7 @@ class LayananPageState extends State<LayananPage> {
                           child: Row(
                             children: [
                               const SizedBox(width: 16),
-                              Icon(
-                                _getIconForIndex(index),
-                                color: Colors.white,
-                                size: 40,
-                              ),
+                              _getIconForIndex(index),
                               const SizedBox(width: 16),
                               Text(
                                 _getTextForIndex(index),
@@ -146,33 +143,37 @@ class LayananPageState extends State<LayananPage> {
             MaterialPageRoute(builder: (context) => const PurchasePage()));
         break;
       case 4:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const StockMovementPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const AyamPage()));
         break;
       case 5:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const PakanPage()));
+            MaterialPageRoute(builder: (context) => const StockMovementPage()));
         break;
       case 6:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerPage()));
+            MaterialPageRoute(builder: (context) => const PakanPage()));
         break;
       case 7:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const SupplierPage()));
+            MaterialPageRoute(builder: (context) => const CustomerPage()));
         break;
       case 8:
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const UserManagementPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SupplierPage()));
+        break;
       case 9:
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
-        break;
       case 10:
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const UserManagementPage()));
+        break;
+      case 11:
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -181,32 +182,74 @@ class LayananPageState extends State<LayananPage> {
     }
   }
 
-  IconData _getIconForIndex(int index) {
+  Widget _getIconForIndex(int index) {
     switch (index) {
       case 0:
-        return Icons.bar_chart;
+        return Image.asset(
+          'assets/dashboard.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 1:
-        return Icons.access_time;
+        return Image.asset(
+          'assets/transaksi.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 2:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/order.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 3:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/purchase.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 4:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/kandang.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 5:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/ayamo.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 6:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/stokpakan.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 7:
-        return Icons.add_box;
+        return Image.asset(
+          'assets/customer.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 8:
-        return Icons.supervised_user_circle;
+        return Image.asset(
+          'assets/customer.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 9:
-        return Icons.account_balance_wallet;
+        return Image.asset(
+          'assets/stokpakan.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 10:
-        return Icons.assignment_add;
+        return Icon(Icons.account_balance_wallet);
+      case 11:
+        return Icon(Icons.assignment_add);
       default:
-        return Icons.help;
+        return Icon(Icons.help);
     }
   }
 
@@ -221,18 +264,20 @@ class LayananPageState extends State<LayananPage> {
       case 3:
         return 'Purchase';
       case 4:
-        return 'Stock Ayam';
+        return 'Kandang Ayam';
       case 5:
-        return 'Pakan';
+        return 'Stock Ayam';
       case 6:
-        return 'Customer';
+        return 'Pakan';
       case 7:
-        return 'Supplier';
+        return 'Customer';
       case 8:
-        return 'User Settings';
+        return 'Supplier';
       case 9:
-        return 'Laporan Keuangan';
+        return 'User Settings';
       case 10:
+        return 'Laporan Keuangan';
+      case 11:
         return 'Laporan Inventaris';
       default:
         return 'Menu';

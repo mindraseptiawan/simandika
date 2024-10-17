@@ -69,25 +69,44 @@ class PurchaseService {
 
   // Method to update a purchase by ID
   Future<PurchaseModel> updatePurchase(
-      int id, PurchaseModel purchase, String token) async {
+      int id, Map<String, dynamic> purchaseData, String token) async {
     var url = Uri.parse('$_baseUrl/purchases/$id');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    var body = jsonEncode({
-      'quantity': purchase.quantity,
-      'price_per_unit': purchase.pricePerUnit,
-      'total_price': purchase.totalPrice,
-    });
+    var body = jsonEncode(purchaseData);
 
-    var response = await http.put(url, headers: headers, body: body);
+    try {
+      var response = await http.post(url, headers: headers, body: body);
 
-    if (response.statusCode == 200) {
-      return PurchaseModel.fromJson(jsonDecode(response.body));
-    } else {
-      debugPrint(response.body);
-      throw Exception('Failed to update purchase');
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        debugPrint('Update response: $jsonResponse'); // Log respons
+
+        if (jsonResponse['data'] != null) {
+          var purchaseData = jsonResponse['data']['purchase'];
+          if (purchaseData['id'] != null &&
+              purchaseData['supplier_id'] != null &&
+              purchaseData['quantity'] != null &&
+              purchaseData['price_per_unit'] != null &&
+              purchaseData['kandang_id'] != null) {
+            return PurchaseModel.fromJson(purchaseData);
+          } else {
+            throw Exception('Data tidak lengkap dalam respons');
+          }
+        } else {
+          throw Exception('Data tidak ditemukan dalam respons');
+        }
+      } else {
+        debugPrint(
+            'Gagal memperbarui pembelian. Status code: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
+        throw Exception('Gagal memperbarui pembelian');
+      }
+    } catch (e) {
+      debugPrint('Error dalam updatePurchase: $e');
+      rethrow;
     }
   }
 
@@ -101,7 +120,7 @@ class PurchaseService {
 
     var response = await http.delete(url, headers: headers);
 
-    if (response.statusCode == 204) {
+    if (response.statusCode == 200) {
       return true;
     } else {
       debugPrint(response.body);

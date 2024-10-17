@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/loading_button.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -53,15 +54,7 @@ class SignUpPageState extends State<SignUpPage> {
         }
       } else {
         if (konteks.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: alertColor,
-              content: const Text(
-                'Gagal Register!',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          );
+          showCustomSnackBar(context, 'Gagal Register!', SnackBarType.error);
         }
       }
 
@@ -82,13 +75,6 @@ class SignUpPageState extends State<SignUpPage> {
                 fontSize: 24,
                 fontWeight: semiBold,
               ),
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Text(
-              'Register Your Account',
-              style: subtitleTextStyle,
             ),
             const SizedBox(height: 20),
             Center(

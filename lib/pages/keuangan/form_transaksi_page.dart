@@ -4,6 +4,7 @@ import 'package:simandika/models/transaksi_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class FormTransaksiPage extends StatefulWidget {
   final TransaksiModel? transaksi;
@@ -166,15 +167,15 @@ class FormTransaksiPageState extends State<FormTransaksiPage> {
     );
     try {
       await transaksiService.createTransaction(transaksi, token!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transaksi berhasil dibuat')),
-      );
+
+      showCustomSnackBar(
+          context, 'Transaksi berhasil dibuat', SnackBarType.success);
       Navigator.pop(context, true);
     } catch (e) {
       debugPrint('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal membuat transaksi')),
-      );
+
+      showCustomSnackBar(
+          context, 'Gagal membuat transaksi', SnackBarType.error);
       Navigator.pop(context, true);
     }
   }

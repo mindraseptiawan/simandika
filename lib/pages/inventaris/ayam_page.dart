@@ -5,6 +5,7 @@ import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/pages/inventaris/form_kandang_page.dart'; // Import FormAyamPage
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/header_widget.dart'; // Import Header widget
 
 class AyamPage extends StatefulWidget {
@@ -45,18 +46,18 @@ class AyamPageState extends State<AyamPage> {
 
     if (result == true) {
       getKandangs(); // Refresh the list if successful
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(kandang == null
-                ? 'Kandang added successfully'
-                : 'Kandang updated successfully')),
-      );
+
+      showCustomSnackBar(
+          context,
+          kandang == null
+              ? 'Kandang added successfully'
+              : 'Kandang updated successfully',
+          SnackBarType.success);
     } else if (result == false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Failed to ${kandang == null ? 'add' : 'update'} kandang')),
-      );
+      showCustomSnackBar(
+          context,
+          'Failed to ${kandang == null ? 'add' : 'update'} kandang!',
+          SnackBarType.success);
     }
   }
 

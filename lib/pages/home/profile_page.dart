@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/user_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 import '../../theme.dart';
 
@@ -19,15 +20,14 @@ class ProfilePage extends StatelessWidget {
           (route) => false,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logout failed. Please try again.')),
-        );
+        showCustomSnackBar(
+            context, 'Logout failed. Please try again!', SnackBarType.error);
       }
     } catch (e) {
       debugPrint('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logout failed. Please try again.')),
-      );
+
+      showCustomSnackBar(
+          context, 'Logout failed. Please try again!', SnackBarType.error);
     }
   }
 

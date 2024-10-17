@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:simandika/models/user_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -68,21 +69,21 @@ class EditProfilePageState extends State<EditProfilePage> {
 
         if (success) {
           // Show a success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile updated successfully!')),
-          );
+
+          showCustomSnackBar(
+              context, 'Profile updated successfully!', SnackBarType.success);
           Navigator.pop(context); // Go back to the previous screen
         } else {
           // Show an error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to update profile')),
-          );
+
+          showCustomSnackBar(
+              context, 'Failed to update profile', SnackBarType.error);
         }
       } catch (e) {
         // Handle errors
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred: $e')),
-        );
+
+        showCustomSnackBar(
+            context, 'An error occurred: $e', SnackBarType.error);
       }
     }
   }

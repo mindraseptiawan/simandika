@@ -10,6 +10,7 @@ import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/pemeliharaan_service.dart';
 import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class DetailPage extends StatefulWidget {
   final String kandangName;
@@ -90,22 +91,19 @@ class DetailPageState extends State<DetailPage>
     );
 
     if (result == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(pemeliharaan == null
+      showCustomSnackBar(
+          context,
+          pemeliharaan == null
               ? 'Pemeliharaan added successfully'
-              : 'Pemeliharaan updated successfully'),
-        ),
-      );
+              : 'Pemeliharaan updated successfully',
+          SnackBarType.success);
       await onSuccess(); // Call the callback to refresh data
       _tabController.animateTo(1); // Switch to the Data Harian tab
     } else if (result == false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Failed to ${pemeliharaan == null ? 'add' : 'update'} pemeliharaan'),
-        ),
-      );
+      showCustomSnackBar(
+          context,
+          'Failed to ${pemeliharaan == null ? 'add' : 'update'} pemeliharaan',
+          SnackBarType.success);
     }
   }
 
@@ -140,7 +138,7 @@ class DetailPageState extends State<DetailPage>
           tabs: const [
             Tab(text: 'Ringkasan'),
             Tab(text: 'Data Harian'),
-            Tab(text: 'Penjualan'),
+            Tab(text: 'Stok Ayam'),
           ],
           labelColor: Colors.white, // Set Tab label color
           unselectedLabelColor:
@@ -172,6 +170,34 @@ class DetailPageState extends State<DetailPage>
     );
   }
 
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                  color: Colors.white), // Set value text color to white
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRingkasanTab() {
     return FutureBuilder<KandangModel>(
       future: _kandangData,
@@ -189,60 +215,30 @@ class DetailPageState extends State<DetailPage>
         } else {
           final kandang = snapshot.data!;
           return Padding(
-            padding: const EdgeInsets.only(
-                top: 16, right: 16, bottom: 300, left: 16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              constraints: const BoxConstraints(
-                maxWidth: 400, // Optional: Set a maximum width if needed
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Nama Kandang: ${kandang.namaKandang}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Operator: ${kandang.operator}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Lokasi: ${kandang.lokasi}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Kapasitas: ${kandang.kapasitas}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Jumlah Real: ${kandang.jumlahReal ?? 'N/A'}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Status: ${kandang.status ? 'Active' : 'Inactive'}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: Colors.white)),
-                ],
-              ),
-            ),
-          );
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                  elevation: 4,
+                  color: primaryColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: [
+                          _buildDetailRow(
+                              'Nama Kandang', '${kandang.namaKandang}'),
+                          _buildDetailRow('Operator', '${kandang.operator}'),
+                          _buildDetailRow('Lokasi', '${kandang.lokasi}'),
+                          _buildDetailRow('Kapasitas', '${kandang.kapasitas}'),
+                          _buildDetailRow(
+                              'Jumlah Real', '${kandang.jumlahReal}'),
+                          _buildDetailRow('Status',
+                              '${kandang.status ? 'Active' : 'Inactive'}'),
+                        ],
+                      ),
+                    ),
+                  )));
         }
       },
     );
@@ -394,18 +390,16 @@ class DetailPageState extends State<DetailPage>
                                 final success =
                                     await _deletePemeliharaan(pemeliharaan.id);
                                 if (success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Pemeliharaan deleted successfully')),
-                                  );
+                                  showCustomSnackBar(
+                                      context,
+                                      'Pemeliharaan deleted successfully',
+                                      SnackBarType.success);
                                   _refreshPemeliharaanData();
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Failed to delete pemeliharaan')),
-                                  );
+                                  showCustomSnackBar(
+                                      context,
+                                      'Failed to delete pemeliharaan!',
+                                      SnackBarType.error);
                                 }
                               },
                             ),

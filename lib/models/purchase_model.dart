@@ -5,6 +5,7 @@ import 'package:simandika/models/transaksi_model.dart';
 class PurchaseModel {
   final int id;
   final int transactionId;
+  final int kandangId;
   final int supplierId;
   final int quantity;
   final double pricePerUnit;
@@ -17,6 +18,7 @@ class PurchaseModel {
   PurchaseModel({
     required this.id,
     required this.transactionId,
+    required this.kandangId,
     required this.supplierId,
     required this.quantity,
     required this.pricePerUnit,
@@ -31,6 +33,7 @@ class PurchaseModel {
     return PurchaseModel(
       id: json['id'],
       transactionId: json['transaction_id'],
+      kandangId: json['kandang_id'],
       supplierId: json['supplier_id'],
       quantity: json['quantity'],
       pricePerUnit: double.parse(json['price_per_unit'].toString()),

@@ -8,6 +8,7 @@ import 'package:simandika/pages/keuangan/transaksi_detail_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/transaksi_pdf_generator.dart';
 
 class TransaksiPage extends StatefulWidget {
@@ -97,17 +98,15 @@ class TransaksiPageState extends State<TransaksiPage> {
 
   Future<void> _generateAndPreviewPDF() async {
     if (_transactions.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada transaksi untuk dibuat PDF')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak ada transaksi untuk dibuat PDF', SnackBarType.error);
       return;
     }
 
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak dapat mengakses token')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak dapat mengakses token', SnackBarType.error);
       return;
     }
 

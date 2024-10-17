@@ -252,18 +252,18 @@ class _HomePageState extends State<HomePage>
                         fontWeight: FontWeight.bold)),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Text('Show: This Year',
-                          style: TextStyle(color: Colors.white, fontSize: 12)),
-                      Icon(Icons.arrow_drop_down,
-                          color: Colors.white, size: 16),
-                    ],
-                  ),
+                  // decoration: BoxDecoration(
+                  //   color: Colors.grey[800],
+                  //   borderRadius: BorderRadius.circular(4),
+                  // ),
+                  // child: Row(
+                  //   children: [
+                  //     Text('Show: This Year',
+                  //         style: TextStyle(color: Colors.white, fontSize: 12)),
+                  //     Icon(Icons.arrow_drop_down,
+                  //         color: Colors.white, size: 16),
+                  //   ],
+                  // ),
                 ),
               ],
             ),

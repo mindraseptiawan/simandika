@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final int? orderId;
@@ -116,9 +117,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           widget.orderId!, pricePerUnit, token!);
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Price Set successfully')),
-        );
+        showCustomSnackBar(context, 'Set Harga Sukses!', SnackBarType.success);
         Navigator.pop(context, true);
         _fetchOrderDetails();
       }
@@ -148,21 +147,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             token!, widget.orderId!, _selectedKandang!);
 
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order processed successfully')),
-          );
+          showCustomSnackBar(
+              context, 'Order processed successfully', SnackBarType.success);
           Navigator.pop(context, true);
           _fetchOrderDetails();
         }
       } catch (e) {
         if (e.toString() == 'Stock in kandang is insufficient') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Stock in kandang is insufficient')),
-          );
+          showCustomSnackBar(
+              context, 'Stock in kandang is insufficient', SnackBarType.error);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Stock dikandang tidak cukup')),
-          );
+          showCustomSnackBar(
+              context, 'Stock dikandang tidak cukup', SnackBarType.error);
         }
       } finally {
         setState(() {
@@ -171,9 +167,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       }
     } else {
       // Handle the case where _selectedKandang is null
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a kandang')),
-      );
+
+      showCustomSnackBar(
+          context, 'Please select a kandang', SnackBarType.error);
     }
   }
 
@@ -190,9 +186,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           widget.orderId!, _selectedPaymentMethod!, _paymentProofPath, token!);
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment proof submitted successfully')),
-        );
+        showCustomSnackBar(context, 'Payment proof submitted successfully',
+            SnackBarType.success);
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -218,9 +213,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       final success = await orderService.verifyPayment(widget.orderId!, token!);
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment verified successfully')),
-        );
+        showCustomSnackBar(
+            context, 'Payment verified successfully', SnackBarType.success);
         Navigator.pop(context, true);
         _fetchOrderDetails();
       }
@@ -285,9 +279,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         final success = await orderService.cancelOrder(widget.orderId!, token!);
 
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order cancelled successfully')),
-          );
+          showCustomSnackBar(
+              context, 'Order cancelled successfully', SnackBarType.success);
           Navigator.pop(context, true);
         }
       } catch (e) {

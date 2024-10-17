@@ -99,102 +99,104 @@ class FormKandangPageState extends State<FormKandangPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
+      appBar: AppBar(
+        title: Text(
+            widget.kandang == null ? 'Form Kandang Ayam' : 'Edit Kandang Ayam',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: primaryColor,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Header(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    widget.kandang == null
+                        ? 'Informasi Kandang'
+                        : 'Edit Kandang',
+                    style: primaryTextStyle.copyWith(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Nama Kandang',
+                  controller: _namaKandangController,
+                  hintText: 'Nama Kandang',
+                  iconPath: 'assets/icon_name.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Operator',
+                  controller: _operatorController,
+                  hintText: 'Operator',
+                  iconPath: 'assets/icon_name.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                    label: 'Lokasi',
+                    controller: _lokasiController,
+                    hintText: 'Lokasi',
+                    icon: const Icon(Icons.location_on),
+                    Color: iconColor
+                    // iconPath: 'assets/icon_name.png',
+                    ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Kapasitas',
+                  controller: _kapasitasController,
+                  hintText: 'Kapasitas',
+                  iconPath: 'assets/ayam.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                    label: 'Jumlah Real',
+                    controller: _jumlahRealController,
+                    hintText: 'Jumlah Real',
+                    icon: const Icon(Icons.numbers)
+                    // iconPath: 'assets/icon_name.png',
+                    ),
+                const SizedBox(height: 20),
+                Row(
                   children: [
-                    Center(
-                      child: Text(
-                        'Informasi Kandang',
-                        style: primaryTextStyle.copyWith(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      'Status',
+                      style: primaryTextStyle.copyWith(
+                        fontSize: 16,
+                        fontWeight: medium,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Nama Kandang',
-                      controller: _namaKandangController,
-                      hintText: 'Nama Kandang',
-                      iconPath: 'assets/icon_name.png',
+                    const SizedBox(width: 12),
+                    Switch(
+                      value: _isActive,
+                      onChanged: (value) {
+                        setState(() {
+                          _isActive = value;
+                        });
+                      },
+                      activeColor: Colors.green,
+                      inactiveThumbColor: Colors.red,
+                      inactiveTrackColor: Colors.redAccent,
                     ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Operator',
-                      controller: _operatorController,
-                      hintText: 'Operator',
-                      iconPath: 'assets/icon_name.png',
+                    Text(
+                      _isActive ? 'Aktif' : 'Tidak Aktif',
+                      style: primaryTextStyle.copyWith(
+                        fontSize: 16,
+                        fontWeight: medium,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                        label: 'Lokasi',
-                        controller: _lokasiController,
-                        hintText: 'Lokasi',
-                        icon: const Icon(Icons.location_on),
-                        Color: iconColor
-                        // iconPath: 'assets/icon_name.png',
-                        ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Kapasitas',
-                      controller: _kapasitasController,
-                      hintText: 'Kapasitas',
-                      iconPath: 'assets/ayam.png',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                        label: 'Jumlah Real',
-                        controller: _jumlahRealController,
-                        hintText: 'Jumlah Real',
-                        icon: const Icon(Icons.numbers)
-                        // iconPath: 'assets/icon_name.png',
-                        ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Text(
-                          'Status',
-                          style: primaryTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: medium,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Switch(
-                          value: _isActive,
-                          onChanged: (value) {
-                            setState(() {
-                              _isActive = value;
-                            });
-                          },
-                          activeColor: Colors.green,
-                          inactiveThumbColor: Colors.red,
-                          inactiveTrackColor: Colors.redAccent,
-                        ),
-                        Text(
-                          _isActive ? 'Aktif' : 'Tidak Aktif',
-                          style: primaryTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: medium,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 50),
-                    _buildSaveButton(), // Use the custom button here
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 50),
+                _buildSaveButton(), // Use the custom button here
+              ],
+            ),
           ),
         ),
       ),

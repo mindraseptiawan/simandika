@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/loading_button.dart';
 
 class SignInPage extends StatefulWidget {
@@ -31,15 +32,7 @@ class SignInPageState extends State<SignInPage> {
     if (success) {
       Navigator.pushNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: alertColor,
-          content: const Text(
-            'Gagal Login!',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+      showCustomSnackBar(context, 'Gagal Login!', SnackBarType.error);
     }
 
     setState(() => isLoading = false);
@@ -62,11 +55,6 @@ class SignInPageState extends State<SignInPage> {
                   fontSize: 24,
                   fontWeight: semiBold,
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Sign In to Continue',
-                style: subtitleTextStyle,
               ),
               const SizedBox(height: 20),
               Center(

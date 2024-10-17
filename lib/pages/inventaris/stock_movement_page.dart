@@ -6,6 +6,7 @@ import 'package:simandika/pages/keuangan/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/stock_pdf_generator.dart';
 
 class StockMovementPage extends StatefulWidget {
@@ -85,18 +86,15 @@ class StockMovementPageState extends State<StockMovementPage> {
 
   Future<void> _generateAndPreviewPDF() async {
     if (_stockMovements.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Tidak ada pergerakan stok untuk dibuat PDF')),
-      );
+      showCustomSnackBar(context, 'Tidak ada pergerakan stok untuk dibuat PDF!',
+          SnackBarType.error);
       return;
     }
 
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak dapat mengakses token')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak dapat mengakses token!', SnackBarType.error);
       return;
     }
 

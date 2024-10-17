@@ -7,6 +7,7 @@ import 'package:simandika/services/pemeliharaan_service.dart';
 import 'package:simandika/services/pakan_service.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/header_widget.dart';
 import 'package:simandika/models/pakan_model.dart';
 
@@ -57,6 +58,10 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       text: widget.pemeliharaan?.keterangan ?? '',
     );
 
+    if (widget.pemeliharaan == null && widget.kandang != null) {
+      _jumlahAyamController.text = widget.kandang!.jumlahReal.toString();
+    }
+
     if (widget.kandang != null) {
       setState(() {
         _kapasitasKandang = widget.kandang!.kapasitas;
@@ -65,7 +70,9 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
 
     // Load pakan data
     _loadPakanData();
-    _loadKandangData();
+    if (widget.kandang == null && widget.kandangId != null) {
+      _loadKandangData();
+    }
   }
 
   Future<void> _loadPakanData() async {
@@ -83,12 +90,8 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
         _pakanList = pakanList;
 
         if (_pakanList.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Anda Belum menambahkan Stok pakan'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          showCustomSnackBar(context, 'Anda Belum menambahkan Stok pakan!',
+              SnackBarType.error);
         }
 
         if (widget.pemeliharaan != null) {
@@ -109,12 +112,9 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       });
     } catch (e) {
       debugPrint('Failed to load pakan data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to load pakan data'),
-          backgroundColor: Colors.red,
-        ),
-      );
+
+      showCustomSnackBar(
+          context, 'Failed to load pakan data!', SnackBarType.error);
     }
   }
 
@@ -128,21 +128,20 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       final kandangData =
           await kandangService.getKandangById(widget.kandangId!, token!);
 
-      // Debugging: Print kandang data
-      debugPrint('Kandang Data: ${kandangData.toJson()}');
-
       setState(() {
         _kapasitasKandang = kandangData.kapasitas;
+        // Set jumlah ayam to jumlah real if this is a new pemeliharaan
+        if (widget.pemeliharaan == null) {
+          _jumlahAyamController.text = kandangData.jumlahReal.toString();
+        }
       });
       debugPrint('Kapasitas Kandang set to: $_kapasitasKandang');
+      debugPrint('Jumlah Real set to: ${kandangData.jumlahReal}');
     } catch (e) {
       debugPrint('Failed to load kandang data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to load kandang data'),
-          backgroundColor: Colors.red,
-        ),
-      );
+
+      showCustomSnackBar(
+          context, 'Failed to load kandang data!', SnackBarType.error);
     }
   }
 
@@ -157,9 +156,8 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     debugPrint('Jumlah Pakan: $jumlahPakan');
 
     if (jumlahAyam > kapasitasKandang) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Jumlah ayam melebihi kapasitas kandang')),
-      );
+      showCustomSnackBar(context, 'Jumlah ayam melebihi kapasitas kandang!',
+          SnackBarType.error);
       return;
     }
 
@@ -175,9 +173,8 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     debugPrint('Sisa Pakan: $sisaPakan');
 
     if (jumlahPakan > sisaPakan) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Stok pakan tidak cukup')),
-      );
+      showCustomSnackBar(
+          context, 'Stok pakan tidak cukup!', SnackBarType.error);
       return;
     }
 
@@ -186,9 +183,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     final token = authProvider.user.token;
 
     if (widget.kandangId == null || widget.kandangId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid kandang ID')),
-      );
+      showCustomSnackBar(context, 'Invalid kandang ID!', SnackBarType.error);
       return;
     }
 
@@ -216,12 +211,10 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan'),
-        ),
-      );
+      showCustomSnackBar(
+          context,
+          'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan!',
+          SnackBarType.success);
     }
   }
 
@@ -298,69 +291,91 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor1,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Header(),
-            const SizedBox(height: 16),
-            _buildInputField(
-              label: 'Umur',
-              controller: _umurController,
-              hintText: 'Umur',
-              keyboardType: TextInputType.number,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              label: 'Jumlah Ayam',
-              controller: _jumlahAyamController,
-              hintText: 'Jumlah Ayam',
-              keyboardType: TextInputType.number,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 24),
-            _buildJenisPakanDropdown(),
-            const SizedBox(height: 16),
-            _buildInputField(
-              label: 'Jumlah Pakan',
-              hintText: 'Jumlah Pakan',
-              controller: _jumlahPakanController,
-              keyboardType: TextInputType.number,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              label: 'Sisa',
-              hintText: 'Sisa',
-              controller: _sisaController,
-              keyboardType: TextInputType.number,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              label: 'Mati',
-              hintText: 'Mati',
-              controller: _matiController,
-              keyboardType: TextInputType.number,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              keyboardType: TextInputType.text,
-              label: 'Keterangan',
-              hintText: 'Keterangan',
-              controller: _keteranganController,
-              iconPath: 'assets/ayama.png',
-            ),
-            const SizedBox(height: 24),
-            _buildSaveButton(),
-          ],
+        backgroundColor: backgroundColor1,
+        appBar: AppBar(
+          title: Text(
+              widget.pemeliharaan == null
+                  ? 'Form Pemeliharaan Ayam'
+                  : 'Edit Pemeliharaan Ayam',
+              style: TextStyle(color: Colors.white)),
+          backgroundColor: primaryColor,
         ),
-      ),
-    );
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      widget.pemeliharaan == null
+                          ? 'Informasi Pemeliharaan'
+                          : 'Edit Pemeliharaan',
+                      style: primaryTextStyle.copyWith(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    label: 'Umur',
+                    controller: _umurController,
+                    hintText: 'Umur',
+                    keyboardType: TextInputType.number,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    label: 'Jumlah Ayam',
+                    controller: _jumlahAyamController,
+                    hintText: 'Jumlah Ayam',
+                    keyboardType: TextInputType.number,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildJenisPakanDropdown(),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    label: 'Jumlah Pakan',
+                    hintText: 'Jumlah Pakan',
+                    controller: _jumlahPakanController,
+                    keyboardType: TextInputType.number,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    label: 'Sisa',
+                    hintText: 'Sisa',
+                    controller: _sisaController,
+                    keyboardType: TextInputType.number,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    label: 'Mati',
+                    hintText: 'Mati',
+                    controller: _matiController,
+                    keyboardType: TextInputType.number,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    keyboardType: TextInputType.text,
+                    label: 'Keterangan',
+                    hintText: 'Keterangan',
+                    controller: _keteranganController,
+                    iconPath: 'assets/ayama.png',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSaveButton(),
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 
   Widget _buildInputField({

@@ -4,6 +4,7 @@ import 'package:simandika/models/pakan_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/pakan_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/header_widget.dart';
 
 class FormPakanPage extends StatefulWidget {
@@ -50,21 +51,20 @@ class FormPakanPageState extends State<FormPakanPage> {
     try {
       if (widget.pakan == null) {
         await pakanService.addPakan(newPakan, token!);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pakan berhasil ditambahkan')),
-        );
+
+        showCustomSnackBar(
+            context, 'Pakan berhasil ditambahkan!', SnackBarType.success);
         Navigator.pop(context, true);
       } else {
         await pakanService.updatePakan(newPakan.id, newPakan, token!);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pakan berhasil diperbarui')),
-        );
+
+        showCustomSnackBar(
+            context, 'Pakan berhasil diperbarui!', SnackBarType.success);
         Navigator.pop(context, true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menyimpan data pakan')),
-      );
+      showCustomSnackBar(
+          context, 'Gagal menyimpan data pakan!', SnackBarType.error);
       Navigator.pop(context, false);
     }
   }
@@ -93,55 +93,55 @@ class FormPakanPageState extends State<FormPakanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
+      appBar: AppBar(
+        title: Text(
+            widget.pakan == null ? 'Form Pakan Ayam' : 'Edit Pakan Ayam',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: primaryColor,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Header(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        'Informasi Stok Pakan',
-                        style: primaryTextStyle.copyWith(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    widget.pakan == null ? 'Informasi Pakan' : 'Edit Pakan',
+                    style: primaryTextStyle.copyWith(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Jenis Pakan',
-                      controller: _jenisController,
-                      hintText: 'Jenis Pakan',
-                      iconPath: 'assets/icon_name.png',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Sisa Pakan',
-                      controller: _sisaController,
-                      hintText: 'Sisa Pakan',
-                      iconPath: 'assets/icon_name.png',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInputField(
-                      label: 'Keterangan',
-                      controller: _keteranganController,
-                      hintText: 'Keterangan',
-                      iconPath: 'assets/icon_name.png',
-                    ),
-
-                    const SizedBox(height: 50),
-                    _buildSaveButton(), // Use the custom button here
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Jenis Pakan',
+                  controller: _jenisController,
+                  hintText: 'Jenis Pakan',
+                  iconPath: 'assets/icon_name.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Sisa Pakan',
+                  controller: _sisaController,
+                  hintText: 'Sisa Pakan',
+                  iconPath: 'assets/icon_name.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Keterangan',
+                  controller: _keteranganController,
+                  hintText: 'Keterangan',
+                  iconPath: 'assets/icon_name.png',
+                ),
+
+                const SizedBox(height: 50),
+                _buildSaveButton(), // Use the custom button here
+              ],
+            ),
           ),
         ),
       ),
@@ -152,7 +152,9 @@ class FormPakanPageState extends State<FormPakanPage> {
     required String label,
     required TextEditingController controller,
     required String hintText,
-    required String iconPath,
+    String? iconPath, // Make this optional
+    Icon? icon, // Make this optional
+    Color? Color, // Add this parameter
     bool obscureText = false,
   }) {
     return Column(
@@ -167,18 +169,24 @@ class FormPakanPageState extends State<FormPakanPage> {
           height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: backgroundColor2,
+            color: backgroundColor22,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              Image.asset(iconPath, width: 17),
+              if (iconPath != null)
+                Image.asset(iconPath, width: 17, color: iconColor)
+              else if (icon != null)
+                Icon(
+                  icon.icon, // Use the icon data
+                  color: iconColor, // Apply color to icon if provided
+                ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   controller: controller,
                   obscureText: obscureText,
-                  style: primaryTextStyle,
+                  style: inputTextStyle,
                   decoration: InputDecoration(
                     hintText: hintText,
                     hintStyle: subtitleTextStyle,

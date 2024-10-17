@@ -9,6 +9,7 @@ import 'package:simandika/pages/keuangan/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/sale_pdf_generator.dart';
 
 class OrderPage extends StatefulWidget {
@@ -98,17 +99,15 @@ class OrderPageState extends State<OrderPage>
 
   Future<void> _generateAndPreviewPDF() async {
     if (_orders.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada order untuk dibuat PDF')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak ada order untuk dibuat PDF', SnackBarType.error);
       return;
     }
 
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak dapat mengakses token')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak dapat mengakses token', SnackBarType.error);
       return;
     }
 
@@ -175,6 +174,7 @@ class OrderPageState extends State<OrderPage>
   final statusMap = {
     'awaiting_payment': 'Awaiting Payment',
     'payment_verification': 'Verification Payment',
+    'price_set': 'Price Set',
     'pending': 'Pending',
     'completed': 'Completed',
     'cancelled': 'Cancelled',

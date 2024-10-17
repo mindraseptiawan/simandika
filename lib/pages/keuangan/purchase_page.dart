@@ -8,6 +8,7 @@ import 'package:simandika/pages/keuangan/purchase_detail_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/purchase_pdf_generator.dart';
 
 class PurchasePage extends StatefulWidget {
@@ -99,17 +100,15 @@ class PurchasePageState extends State<PurchasePage> {
 
   Future<void> _generateAndPreviewPDF() async {
     if (_purchases.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada transaksi untuk dibuat PDF')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak ada transaksi untuk dibuat PDF', SnackBarType.error);
       return;
     }
 
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak dapat mengakses token')),
-      );
+      showCustomSnackBar(
+          context, 'Tidak dapat mengakses token', SnackBarType.error);
       return;
     }
 
@@ -206,8 +205,8 @@ class PurchasePageState extends State<PurchasePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => PurchaseDetailPage(
@@ -215,6 +214,9 @@ class PurchasePageState extends State<PurchasePage> {
                                 ),
                               ),
                             );
+                            if (result == true) {
+                              _refreshPurchases();
+                            }
                           },
                         );
                       },

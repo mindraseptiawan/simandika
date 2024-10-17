@@ -6,6 +6,7 @@ import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/widgets/header_widget.dart';
 
 class FormTambahAyamPage extends StatefulWidget {
@@ -43,9 +44,8 @@ class _FormTambahAyamPageState extends State<FormTambahAyamPage> {
 
   Future<void> _tambahAyam() async {
     if (_selectedKandang == null || _jumlahTambahController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pilih kandang dan masukkan jumlah ayam')),
-      );
+      showCustomSnackBar(context, 'Pilih kandang dan masukkan jumlah ayam!',
+          SnackBarType.error);
       return;
     }
 
@@ -57,14 +57,13 @@ class _FormTambahAyamPageState extends State<FormTambahAyamPage> {
         int.parse(_jumlahTambahController.text),
         token!,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Berhasil menambahkan ayam')),
-      );
+
+      showCustomSnackBar(
+          context, 'Berhasil menambahkan ayam!', SnackBarType.success);
       Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan ayam: $e')),
-      );
+      showCustomSnackBar(
+          context, 'Gagal menambahkan ayam: $e!', SnackBarType.error);
     }
   }
 
