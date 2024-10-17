@@ -196,8 +196,8 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       sisa: int.tryParse(_sisaController.text),
       mati: int.tryParse(_matiController.text),
       keterangan: _keteranganController.text,
-      createdAt: widget.pemeliharaan?.createdAt,
-      updatedAt: widget.pemeliharaan?.updatedAt,
+      createdAt: widget.pemeliharaan!.createdAt,
+      updatedAt: widget.pemeliharaan!.updatedAt,
     );
 
     try {

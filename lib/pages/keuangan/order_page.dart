@@ -5,7 +5,7 @@ import 'package:simandika/models/order_model.dart';
 import 'package:simandika/models/sale_model.dart';
 import 'package:simandika/pages/keuangan/form_order_page.dart';
 import 'package:simandika/pages/keuangan/order_detail_page.dart';
-import 'package:simandika/pages/keuangan/pdf_preview.dart';
+import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:simandika/theme.dart';

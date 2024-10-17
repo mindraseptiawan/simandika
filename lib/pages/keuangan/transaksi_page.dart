@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/transaksi_model.dart';
 import 'package:simandika/pages/keuangan/form_transaksi_page.dart';
-import 'package:simandika/pages/keuangan/pdf_preview.dart';
+import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/pages/keuangan/transaksi_detail_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/transaksi_service.dart';

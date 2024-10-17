@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/purchase_model.dart';
 import 'package:simandika/pages/keuangan/form_purchase_page.dart';
-import 'package:simandika/pages/keuangan/pdf_preview.dart';
+import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/pages/keuangan/purchase_detail_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/purchase_service.dart';

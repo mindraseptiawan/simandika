@@ -69,7 +69,7 @@ class FormTransaksiPageState extends State<FormTransaksiPage> {
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
-                    labelText: 'Pilih Kandang',
+                    labelText: 'Pilih Tipe Transaksi',
                     labelStyle: inputTextStyle,
                     filled: true,
                     fillColor: backgroundColor22,

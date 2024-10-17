@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/stock_model.dart';
-import 'package:simandika/pages/keuangan/pdf_preview.dart';
+import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';

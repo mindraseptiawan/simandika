@@ -16,6 +16,7 @@ Color backgroundColor5 = const Color(0xff2B2844);
 Color backgroundColor6 = const Color(0xffECEDEF);
 Color primaryTextColor = const Color(0xffF1F0F2);
 Color inputTextColor = const Color(0xff1F1D2B);
+Color hasilTextColor = const Color(0xffF1F0F2);
 Color secondaryTextColor = const Color(0xff999999);
 Color subtitleColor = const Color(0xff504F5E);
 Color transparentColor = Colors.transparent;
@@ -28,6 +29,9 @@ TextStyle primaryTextStyle = GoogleFonts.poppins(
 
 TextStyle inputTextStyle = GoogleFonts.poppins(
   color: inputTextColor,
+);
+TextStyle hasilTextStyle = GoogleFonts.poppins(
+  color: hasilTextColor,
 );
 
 TextStyle judulTextStyle = GoogleFonts.poppins(

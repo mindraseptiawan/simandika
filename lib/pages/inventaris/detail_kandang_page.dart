@@ -300,8 +300,9 @@ class DetailPageState extends State<DetailPage>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          DetailPemeliharaanPage(pemeliharaan: pemeliharaan),
+                      builder: (context) => DetailPemeliharaanPage(
+                        pemeliharaanId: pemeliharaan.id,
+                      ),
                     ),
                   );
                 },

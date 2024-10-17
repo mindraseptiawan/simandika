@@ -53,7 +53,7 @@ class PemeliharaanService {
 
   Future<List<PemeliharaanModel>> getPemeliharaansByKandang(
       int kandangId, String token) async {
-    var url = Uri.parse('$baseUrl/pemeliharaan/$kandangId');
+    var url = Uri.parse('$baseUrl/pemeliharaan/kandang/$kandangId');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token'

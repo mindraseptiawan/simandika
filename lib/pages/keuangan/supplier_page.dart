@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/supplier_model.dart';
 import 'package:simandika/pages/keuangan/detail_purchase_page.dart';
+import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/supplier_service.dart';
 import 'package:simandika/theme.dart';
+import 'package:simandika/widgets/customSnackbar_widget.dart';
+import 'package:simandika/widgets/supplier_pdf_generator.dart';
 
 class SupplierPage extends StatefulWidget {
   const SupplierPage({super.key});
@@ -19,7 +23,11 @@ class SupplierPageState extends State<SupplierPage> {
   List<SupplierModel> _filteredSuppliers = []; // To store filtered suppliers
   // ignore: unused_field
   final String _searchQuery = '';
+  String reportType = 'Daftar Supplier';
   final TextEditingController _searchController = TextEditingController();
+
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _endDate = DateTime.now();
 
   @override
   void initState() {
@@ -59,6 +67,52 @@ class SupplierPageState extends State<SupplierPage> {
     });
   }
 
+  Future<void> _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
+  Future<void> _generateAndPreviewPDF() async {
+    if (_suppliers.isEmpty) {
+      showCustomSnackBar(
+          context, 'Tidak ada transaksi untuk dibuat PDF', SnackBarType.error);
+      return;
+    }
+
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+    if (token == null) {
+      showCustomSnackBar(
+          context, 'Tidak dapat mengakses token', SnackBarType.error);
+      return;
+    }
+
+    final pdfBytes = await generateSupplierPDF(
+        _suppliers, _startDate, _endDate, token, reportType);
+    final fileName =
+        'purchases_${DateFormat('yyyyMMdd').format(_startDate)}_${DateFormat('yyyyMMdd').format(_endDate)}.pdf';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFPreviewPage(
+          pdfBytes: pdfBytes,
+          fileName: fileName,
+          reportTitle: 'Laporan Customer',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,8 +124,9 @@ class SupplierPageState extends State<SupplierPage> {
         iconTheme: IconThemeData(color: Colors.white),
         actions: [
           TextButton(
-            onPressed: () {
-              // Action for PDF button
+            onPressed: () async {
+              await _selectDateRange();
+              await _generateAndPreviewPDF();
             },
             child: const Text('PDF',
                 style: TextStyle(
