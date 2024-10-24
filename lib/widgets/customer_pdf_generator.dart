@@ -25,7 +25,7 @@ Future<Uint8List> generateCustomerPDF(
 
   CustomerService customerService = CustomerService();
   List<CustomerModel> allcustomers =
-      await customerService.getAllCustomers(token);
+      await customerService.getAllLaporanCustomers(token);
 
   List<CustomerModel> filteredCustomers = allcustomers
       .where((customer) =>

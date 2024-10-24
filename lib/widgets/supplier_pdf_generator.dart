@@ -26,7 +26,7 @@ Future<Uint8List> generateSupplierPDF(
 
   SupplierService customerService = SupplierService();
   List<SupplierModel> allsuppliers =
-      await customerService.getAllSuppliers(token);
+      await customerService.getAllLaporanSuppliers(token);
 
   List<SupplierModel> filteredSuppliers = allsuppliers
       .where((supplier) =>

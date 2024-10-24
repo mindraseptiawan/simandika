@@ -27,6 +27,25 @@ class CustomerService {
     }
   }
 
+  Future<List<CustomerModel>> getAllLaporanCustomers(String token) async {
+    var url = Uri.parse('$baseUrl/customersreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      List<CustomerModel> customers =
+          data.map((item) => CustomerModel.fromJson(item)).toList();
+      return customers;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load customers');
+    }
+  }
   // Method to get customers by type (e.g., "purchase" or "sale")
 
   // Method to get a specific customer by ID

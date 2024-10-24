@@ -24,7 +24,7 @@ Future<Uint8List> generatePurchasePDF(
 
   PurchaseService purchaseService = PurchaseService();
   List<PurchaseModel> allPurchases =
-      await purchaseService.getAllPurchases(token);
+      await purchaseService.getAllLaporanPurchases(token);
 
   List<PurchaseModel> filteredPurchases = allPurchases
       .where((purchase) =>

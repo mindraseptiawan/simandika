@@ -30,6 +30,29 @@ class TransaksiService {
     }
   }
 
+  Future<List<TransaksiModel>> getAllLaporanTransactions(String token) async {
+    var url = Uri.parse('$baseUrl/transactionsreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      List data = jsonData['data']; // Akses data melalui key "data"
+      List<TransaksiModel> transactions = data
+          .map((item) => TransaksiModel.fromJson(item))
+          .where((transaction) => transaction.amount != null)
+          .toList();
+      return transactions;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load transactions');
+    }
+  }
+
   // Method to get transactions by type (e.g., "purchase" or "sale")
   Future<List<TransaksiModel>> getTransactionsByType(
       String token, String type) async {

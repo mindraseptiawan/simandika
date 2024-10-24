@@ -28,6 +28,27 @@ class PurchaseService {
     }
   }
 
+  Future<List<PurchaseModel>> getAllLaporanPurchases(String token) async {
+    var url = Uri.parse('$_baseUrl/purchasesreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      List data = jsonData['data']; // Akses data melalui key "data"
+      List<PurchaseModel> purchases =
+          data.map((item) => PurchaseModel.fromJson(item)).toList();
+      return purchases;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load purchases');
+    }
+  }
+
   // Method to get a specific purchase by ID
   Future<PurchaseModel> getPurchaseById(int id, String token) async {
     var url = Uri.parse('$_baseUrl/purchases/$id');

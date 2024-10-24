@@ -27,6 +27,25 @@ class SupplierService {
     }
   }
 
+  Future<List<SupplierModel>> getAllLaporanSuppliers(String token) async {
+    var url = Uri.parse('$baseUrl/suppliersreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      List<SupplierModel> suppliers =
+          data.map((item) => SupplierModel.fromJson(item)).toList();
+      return suppliers;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load suppliers');
+    }
+  }
   // Method to get suppliers by type (e.g., "purchase" or "sale")
 
   // Method to get a specific customer by ID

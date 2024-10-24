@@ -23,7 +23,8 @@ Future<Uint8List> generateStockMovementPDF(
   );
 
   StockService stockService = StockService();
-  List<StockMovementModel> allstocks = await stockService.getAllStocks(token);
+  List<StockMovementModel> allstocks =
+      await stockService.getAllLaporanStocks(token);
 
   List<StockMovementModel> filteredStocks = allstocks
       .where((stock) =>

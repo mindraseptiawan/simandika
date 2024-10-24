@@ -32,6 +32,32 @@ class SaleService {
     }
   }
 
+  Future<List<SaleModel>> getAllLaporanSales(String token) async {
+    var url = Uri.parse('$baseUrl/salesreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      if (jsonData['data'] is List) {
+        List<SaleModel> sales = (jsonData['data'] as List)
+            .map((item) => SaleModel.fromJson(item))
+            .toList();
+        return sales;
+      } else {
+        debugPrint('Unexpected data format: ${jsonData['data']}');
+        return [];
+      }
+    } else {
+      debugPrint('Failed to load sales: ${response.body}');
+      throw Exception('Failed to load sales');
+    }
+  }
+
   // Method to get a sale by ID
   Future<SaleModel> getSaleById(int id, String token) async {
     var url = Uri.parse('$baseUrl/sales/$id');

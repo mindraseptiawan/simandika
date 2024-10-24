@@ -24,7 +24,7 @@ Future<Uint8List> generateTransactionPDF(
 
   TransaksiService transactionService = TransaksiService();
   List<TransaksiModel> allTransactions =
-      await transactionService.getAllTransactions(token);
+      await transactionService.getAllLaporanTransactions(token);
 
   List<TransaksiModel> filteredTransactions = allTransactions
       .where((transaction) =>

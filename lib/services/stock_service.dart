@@ -35,6 +35,33 @@ class StockService {
     }
   }
 
+  Future<List<StockMovementModel>> getAllLaporanStocks(String token) async {
+    var url = Uri.parse('$_baseUrl/stocksreport');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      // Parse the JSON response
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+      // Access the list of purchases from 'data'
+      List<dynamic> stocksData = jsonResponse['data'];
+
+      // Convert the list of dynamic to list of StockMovementModel
+      List<StockMovementModel> stocks =
+          stocksData.map((item) => StockMovementModel.fromJson(item)).toList();
+
+      return stocks;
+    } else {
+      debugPrint(response.body);
+      throw Exception('Failed to load purchases');
+    }
+  }
+
   // Method to get a specific purchase by ID
   Future<StockMovementModel> getStockById(int id, String token) async {
     var url = Uri.parse('$_baseUrl/stocks/$id');

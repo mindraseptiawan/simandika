@@ -19,7 +19,7 @@ Future<Uint8List> generateSalesPDF(List<SaleModel> sales, DateTime startDate,
   );
 
   SaleService saleService = SaleService();
-  List<SaleModel> allSales = await saleService.getAllSales(token);
+  List<SaleModel> allSales = await saleService.getAllLaporanSales(token);
   List<SaleModel> filteredSales = allSales
       .where((sale) =>
           sale.createdAt.isAfter(startDate.subtract(Duration(days: 1))) &&
