@@ -26,7 +26,6 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
   late TextEditingController _umurController;
   late TextEditingController _jumlahAyamController;
   late TextEditingController _jumlahPakanController;
-  late TextEditingController _sisaController;
   late TextEditingController _matiController;
   late TextEditingController _keteranganController;
 
@@ -46,9 +45,6 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     );
     _jumlahPakanController = TextEditingController(
       text: widget.pemeliharaan?.jumlahPakan?.toString() ?? '',
-    );
-    _sisaController = TextEditingController(
-      text: widget.pemeliharaan?.sisa?.toString() ?? '',
     );
     _matiController = TextEditingController(
       text: widget.pemeliharaan?.mati?.toString() ?? '',
@@ -186,6 +182,9 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       return;
     }
 
+    // Format current date as string
+    final now = DateTime.now().toIso8601String();
+
     final newPemeliharaan = PemeliharaanModel(
       id: widget.pemeliharaan?.id ?? 0,
       kandangId: widget.kandangId!,
@@ -193,11 +192,11 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       jumlahAyam: jumlahAyam,
       jumlahPakan: jumlahPakan,
       jenisPakanId: selectedPakan.id,
-      sisa: int.tryParse(_sisaController.text),
       mati: int.tryParse(_matiController.text),
       keterangan: _keteranganController.text,
-      createdAt: widget.pemeliharaan!.createdAt,
-      updatedAt: widget.pemeliharaan!.updatedAt,
+      // Use existing timestamps if updating, create new ones if adding
+      createdAt: widget.pemeliharaan?.createdAt ?? now,
+      updatedAt: now,
     );
 
     try {
@@ -213,7 +212,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       showCustomSnackBar(
           context,
           'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan!',
-          SnackBarType.success);
+          SnackBarType.error);
     }
   }
 
@@ -341,14 +340,6 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
                     label: 'Jumlah Pakan',
                     hintText: 'Jumlah Pakan',
                     controller: _jumlahPakanController,
-                    keyboardType: TextInputType.number,
-                    iconPath: 'assets/ayama.png',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInputField(
-                    label: 'Sisa',
-                    hintText: 'Sisa',
-                    controller: _sisaController,
                     keyboardType: TextInputType.number,
                     iconPath: 'assets/ayama.png',
                   ),

@@ -73,7 +73,7 @@ class ProfilePage extends StatelessWidget {
     UserModel user = authProvider.user;
     Widget header() {
       return AppBar(
-        backgroundColor: backgroundColor1,
+        backgroundColor: primaryColor,
         automaticallyImplyLeading: false,
         elevation: 0,
         flexibleSpace: SafeArea(
@@ -95,7 +95,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       Text(
                         '@${user.username}',
-                        style: subtitleTextStyle.copyWith(
+                        style: primaryTextStyle.copyWith(
                           fontSize: 16,
                         ),
                       ),

@@ -32,7 +32,7 @@ class UserService {
   }
 
   // Ambil peran pengguna
-  Future<UserModel> getUserWithRoles(String token) async {
+  Future<List<String>> getUserWithRoles(String token) async {
     var url = Uri.parse('$baseUrl/user/roles');
     var headers = {
       'Content-Type': 'application/json',
@@ -45,8 +45,9 @@ class UserService {
     }
     if (response.statusCode == 200) {
       // Parse the user data including roles
-      var data = jsonDecode(response.body);
-      return UserModel.fromJson(data);
+      final data = jsonDecode(response.body);
+      List<String> roles = List<String>.from(data['roles']);
+      return roles;
     } else {
       throw Exception('Failed to load user roles');
     }

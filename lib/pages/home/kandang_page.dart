@@ -142,11 +142,6 @@ class _KandangPageState extends State<KandangPage> {
                 ],
               ),
             ),
-            Image.asset(
-              'assets/notif.png',
-              width: 30.0,
-              height: 30.0,
-            )
           ],
         ),
       );

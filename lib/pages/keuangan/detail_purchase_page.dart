@@ -226,12 +226,6 @@ class DetailPurchasePageState extends State<DetailPurchasePage> {
                                       ],
                                     ),
                                   ),
-                                  // Row(
-                                  //   mainAxisSize: MainAxisSize.min,
-                                  //   children: [
-
-                                  //   ],
-                                  // ),
                                 ],
                               ),
                             ),

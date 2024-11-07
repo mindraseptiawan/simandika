@@ -4,7 +4,6 @@ class PemeliharaanModel {
   final int umur;
   final int jumlahAyam;
   final int? jumlahPakan;
-  final int? sisa;
   final int? mati;
   final String? keterangan;
   final int? jenisPakanId; // Properti untuk menyimpan ID jenis pakan
@@ -17,7 +16,6 @@ class PemeliharaanModel {
     required this.umur,
     required this.jumlahAyam,
     this.jumlahPakan,
-    this.sisa,
     this.mati,
     this.keterangan,
     this.jenisPakanId, // Properti untuk menyimpan ID jenis pakan
@@ -32,7 +30,6 @@ class PemeliharaanModel {
       umur: json['umur'],
       jumlahAyam: json['jumlah_ayam'],
       jumlahPakan: json['jumlah_pakan'],
-      sisa: json['sisa'],
       mati: json['mati'],
       keterangan: json['keterangan'],
       jenisPakanId:
@@ -49,7 +46,7 @@ class PemeliharaanModel {
       'umur': umur,
       'jumlah_ayam': jumlahAyam,
       'jumlah_pakan': jumlahPakan,
-      'sisa': sisa,
+
       'mati': mati,
       'keterangan': keterangan,
       'jenis_pakan_id': jenisPakanId, // Properti untuk menyimpan ID jenis pakan
@@ -64,7 +61,6 @@ class PemeliharaanModel {
     int? umur,
     int? jumlahAyam,
     int? jumlahPakan,
-    int? sisa,
     int? mati,
     String? keterangan,
     int? jenisPakanId, // Properti untuk menyimpan ID jenis pakan
@@ -77,7 +73,6 @@ class PemeliharaanModel {
       umur: umur ?? this.umur,
       jumlahAyam: jumlahAyam ?? this.jumlahAyam,
       jumlahPakan: jumlahPakan ?? this.jumlahPakan,
-      sisa: sisa ?? this.sisa,
       mati: mati ?? this.mati,
       keterangan: keterangan ?? this.keterangan,
       jenisPakanId: jenisPakanId ??

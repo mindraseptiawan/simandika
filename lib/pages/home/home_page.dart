@@ -193,11 +193,6 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
             ),
-            Image.asset(
-              'assets/notif.png',
-              width: 30.0,
-              height: 30.0,
-            )
           ],
         ),
       );

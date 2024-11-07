@@ -104,7 +104,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
         await PurchaseService().createPurchase(purchaseData, token!);
 
         showCustomSnackBar(
-            context, 'Order berhasil dibuat', SnackBarType.success);
+            context, 'Pembelian berhasil dibuat', SnackBarType.success);
       } else {
         final updatedPurchase = await PurchaseService()
             .updatePurchase(widget.purchase!.id, purchaseData, token!);

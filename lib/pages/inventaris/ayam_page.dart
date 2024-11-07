@@ -91,12 +91,15 @@ class AyamPageState extends State<AyamPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
+      appBar: AppBar(
+        title: const Text('Kandang Ayam',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Add Header widget here
-            const Header(),
-
             // Kandang list view
             Expanded(
               child: ListView.builder(

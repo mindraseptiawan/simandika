@@ -71,6 +71,8 @@ class DetailPageState extends State<DetailPage>
       setState(() {
         _pemeliharaanData = PemeliharaanService()
             .getPemeliharaansByKandang(widget.kandangId, token);
+        _stockData =
+            StockService().getStockByKandangId(widget.kandangId, token);
       });
     }
   }
@@ -122,7 +124,8 @@ class DetailPageState extends State<DetailPage>
   Future<void> _addPemeliharaan() async {
     await _navigateToFormPage(
       kandangId: widget.kandangId,
-      onSuccess: _refreshPemeliharaanData, // Pass the callback
+      onSuccess: _refreshPemeliharaanData,
+      // Pass the callback
     );
   }
 
@@ -434,7 +437,7 @@ class DetailPageState extends State<DetailPage>
                   Text('No data found', style: TextStyle(color: Colors.white)));
         } else {
           final stocks = snapshot.data!;
-
+          stocks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
           return ListView.builder(
             itemCount: stocks.length,
             itemBuilder: (context, index) {

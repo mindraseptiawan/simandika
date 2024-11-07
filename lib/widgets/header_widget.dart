@@ -34,11 +34,6 @@ class Header extends StatelessWidget {
               ],
             ),
           ),
-          Image.asset(
-            'assets/notif.png',
-            width: 30.0,
-            height: 30.0,
-          ),
         ],
       ),
     );

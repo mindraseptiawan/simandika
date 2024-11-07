@@ -101,17 +101,16 @@ class EditProfilePageState extends State<EditProfilePage> {
             Navigator.pop(context);
           },
         ),
-        backgroundColor: backgroundColor1,
+        backgroundColor: primaryColor,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Edit Profile',
-        ),
+        title: const Text('Edit Profile',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         actions: [
           IconButton(
             icon: Icon(
               Icons.check,
-              color: primaryColor,
+              color: secondaryColor,
             ),
             onPressed: _saveProfile, // Trigger save profile
           )
