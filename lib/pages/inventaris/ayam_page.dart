@@ -6,7 +6,6 @@ import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/pages/inventaris/form_kandang_page.dart'; // Import FormAyamPage
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/customSnackbar_widget.dart';
-import 'package:simandika/widgets/header_widget.dart'; // Import Header widget
 
 class AyamPage extends StatefulWidget {
   const AyamPage({super.key});

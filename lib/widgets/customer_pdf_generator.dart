@@ -4,7 +4,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import 'package:simandika/models/customer_model.dart';
 import 'package:simandika/services/customer_service.dart';
-import 'package:simandika/services/stock_service.dart';
 
 Future<Uint8List> generateCustomerPDF(
     List<CustomerModel> customers,

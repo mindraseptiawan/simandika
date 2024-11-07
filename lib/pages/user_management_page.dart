@@ -124,17 +124,17 @@ class UserManagementPageState extends State<UserManagementPage> {
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      user.token != null
-                                          ? Icons.check_circle
-                                          : Icons.cancel,
-                                      color: user.token != null
-                                          ? Colors.green
-                                          : alertColor,
-                                    ),
-                                    onPressed: () => toggleUserStatus(user),
-                                  ),
+                                  // IconButton(
+                                  //   icon: Icon(
+                                  //     user.token != null
+                                  //         ? Icons.check_circle
+                                  //         : Icons.cancel,
+                                  //     color: user.token != null
+                                  //         ? Colors.green
+                                  //         : alertColor,
+                                  //   ),
+                                  //   onPressed: () => toggleUserStatus(user),
+                                  // ),
                                   IconButton(
                                     icon: Icon(Icons.delete, color: alertColor),
                                     onPressed: () => deleteUser(user.id),
