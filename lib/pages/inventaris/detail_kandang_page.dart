@@ -155,7 +155,7 @@ class DetailPageState extends State<DetailPage>
           children: [
             _buildRingkasanTab(),
             _buildDataHarianTab(),
-            _buildPenjualanTab(),
+            _buildStokAyamTab(),
           ],
         ),
       ),
@@ -421,7 +421,7 @@ class DetailPageState extends State<DetailPage>
     );
   }
 
-  Widget _buildPenjualanTab() {
+  Widget _buildStokAyamTab() {
     return FutureBuilder<List<StockMovementModel>>(
       future: _stockData,
       builder: (context, snapshot) {

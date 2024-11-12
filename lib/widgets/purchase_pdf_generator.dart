@@ -65,7 +65,7 @@ Future<Uint8List> generatePurchasePDF(
                     ),
                   ),
                   pw.Text(
-                    'Jl. Lambung Mangkurat Ps. Rahmat Los 1 No. 140, Samarinda. (Hp. 0812 5716 0808)',
+                    'Pintu air, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 14240',
                     style: pw.TextStyle(fontSize: 10),
                   ),
                 ],
