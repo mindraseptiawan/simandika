@@ -5,7 +5,7 @@ import 'package:simandika/models/stock_model.dart';
 
 class StockService {
   final String _baseUrl =
-      'http://192.168.137.1:8000/api'; // ganti dengan URL API Anda
+      'http://udandika.simandika.my.id/api'; // ganti dengan URL API Anda
 
   // Method to get all purchases
   Future<List<StockMovementModel>> getAllStocks(String token) async {

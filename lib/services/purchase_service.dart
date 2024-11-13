@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/purchase_model.dart';
 
 class PurchaseService {
-  String _baseUrl = 'http://192.168.137.1:8000/api';
+  String _baseUrl = 'http://udandika.simandika.my.id/api';
 
   // Method to get all purchases
   Future<List<PurchaseModel>> getAllPurchases(String token) async {

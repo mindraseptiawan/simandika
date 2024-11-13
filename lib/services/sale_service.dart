@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/sale_model.dart';
 
 class SaleService {
-  final String baseUrl = 'http://192.168.137.1:8000/api';
+  final String baseUrl = 'http://udandika.simandika.my.id/api';
 
   Future<List<SaleModel>> getAllSales(String token) async {
     var url = Uri.parse('$baseUrl/sales');
