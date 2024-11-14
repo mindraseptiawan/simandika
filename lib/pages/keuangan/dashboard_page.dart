@@ -59,7 +59,7 @@ class _CashflowChartState extends State<CashflowChart> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: primaryTextColor),
+                  color: Colors.white),
             ),
             DropdownButton<String>(
               value: _selectedTimeRange,

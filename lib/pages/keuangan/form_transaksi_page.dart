@@ -96,6 +96,10 @@ class FormTransaksiPageState extends State<FormTransaksiPage> {
                       child: Text('Sale'),
                       value: 'sale',
                     ),
+                    DropdownMenuItem(
+                      child: Text('Other'),
+                      value: 'other',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
