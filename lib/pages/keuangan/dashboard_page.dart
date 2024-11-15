@@ -45,7 +45,10 @@ class _CashflowChartState extends State<CashflowChart> {
     if (filteredCashflows.isEmpty) {
       return Center(child: Text('Tidak ada data cashflows'));
     }
-
+    for (final cashflow in filteredCashflows) {
+      print(
+          'Cashflow: type=${cashflow.type}, amount=${cashflow.amount}, balance=${cashflow.balance}');
+    }
     final latestBalance = filteredCashflows.last.balance;
 
     return Column(
@@ -360,48 +363,57 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {
       _cashflows = cashflows;
     });
+    // Debug logging
+    if (_cashflows != null) {
+      for (final cashflow in _cashflows!) {
+        print(
+            'Cashflow: type=${cashflow.type}, amount=${cashflow.amount}, balance=${cashflow.balance}');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text(
-            'Dashboard',
-            style:
-                TextStyle(color: primaryTextColor, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Color(0xFF6750A4),
-          iconTheme: IconThemeData(color: Colors.white)),
-      body: _cashflows == null
-          ? Center(child: CircularProgressIndicator())
-          : Container(
-              color: Color(0xFF1C1B1F),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      CashflowChart(cashflows: _cashflows!),
-                      SizedBox(height: 30),
-                      MonthlyChart(
-                        title: 'Pendapatan',
-                        cashflows: _cashflows!,
-                        lineColor: Color(0xFF6750A4),
-                        getValue: (cf) => cf.type == 'in' ? cf.amount : 0,
+        appBar: AppBar(
+            title: Text(
+              'Dashboard',
+              style: TextStyle(
+                  color: primaryTextColor, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Color(0xFF6750A4),
+            iconTheme: IconThemeData(color: Colors.white)),
+        body: Container(
+          color: Color(0xFF1C1B1F),
+          child: _cashflows == null
+              ? Center(child: CircularProgressIndicator())
+              : Container(
+                  color: Color(0xFF1C1B1F),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          CashflowChart(cashflows: _cashflows!),
+                          SizedBox(height: 30),
+                          MonthlyChart(
+                            title: 'Pendapatan',
+                            cashflows: _cashflows!,
+                            lineColor: Color(0xFF6750A4),
+                            getValue: (cf) => cf.type == 'in' ? cf.amount : 0,
+                          ),
+                          SizedBox(height: 30),
+                          MonthlyChart(
+                            title: 'Pengeluaran',
+                            cashflows: _cashflows!,
+                            lineColor: Color(0xFFE94560),
+                            getValue: (cf) => cf.type == 'out' ? cf.amount : 0,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 30),
-                      MonthlyChart(
-                        title: 'Pengeluaran',
-                        cashflows: _cashflows!,
-                        lineColor: Color(0xFFE94560),
-                        getValue: (cf) => cf.type == 'out' ? cf.amount : 0,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-    );
+        ));
   }
 }

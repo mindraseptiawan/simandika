@@ -17,13 +17,17 @@ class CashflowModel {
 
   factory CashflowModel.fromJson(Map<String, dynamic> json) {
     return CashflowModel(
-      id: json['id'],
-      transactionId: json['transaction_id'],
-      type: json['type'],
-      amount: json['amount'] != null ? double.parse(json['amount']) : 0.0,
-      balance: json['balance'] != null ? double.parse(json['balance']) : 0.0,
+      id: json['id'] as int,
+      transactionId: json['transaction_id'] as int,
+      type: json['type'] as String,
+      amount: json['amount'] != null
+          ? double.parse(json['amount'].toString())
+          : 0.0,
+      balance: json['balance'] != null
+          ? double.parse(json['balance'].toString())
+          : 0.0,
       date: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.parse(json['created_at'].toString())
           : DateTime.now(),
     );
   }
