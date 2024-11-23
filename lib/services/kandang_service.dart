@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/kandang_model.dart';
 
 class KandangService {
-  String baseUrl = 'http://udandika.simandika.my.id/api';
+  String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method untuk mendapatkan daftar semua kandang
   Future<List<KandangModel>> getKandangs(String token) async {

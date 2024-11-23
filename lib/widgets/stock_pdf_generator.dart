@@ -6,11 +6,13 @@ import 'package:simandika/models/stock_model.dart';
 import 'package:simandika/services/stock_service.dart';
 
 Future<Uint8List> generateStockMovementPDF(
-    List<StockMovementModel> stocks,
-    DateTime startDate,
-    DateTime endDate,
-    String token,
-    String reportType) async {
+  List<StockMovementModel> stocks,
+  DateTime startDate,
+  DateTime endDate,
+  String token,
+  String reportType,
+  int? kandangId,
+) async {
   final font = pw.Font.ttf(
       await rootBundle.load("assets/Open_Sans/OpenSans-SemiBold.ttf"));
   final logoImage = pw.MemoryImage(
@@ -26,11 +28,15 @@ Future<Uint8List> generateStockMovementPDF(
   List<StockMovementModel> allstocks =
       await stockService.getAllLaporanStocks(token);
 
-  List<StockMovementModel> filteredStocks = allstocks
-      .where((stock) =>
-          stock.createdAt.isAfter(startDate.subtract(Duration(days: 1))) &&
-          stock.createdAt.isBefore(endDate.add(Duration(days: 1))))
-      .toList();
+  List<StockMovementModel> filteredStocks = allstocks.where((stock) {
+    final isWithinDateRange =
+        stock.createdAt.isAfter(startDate.subtract(Duration(days: 1))) &&
+            stock.createdAt.isBefore(endDate.add(Duration(days: 1)));
+
+    final matchesKandang = kandangId == null || stock.kandang?.id == kandangId;
+
+    return isWithinDateRange && matchesKandang;
+  }).toList();
 
   // Function to create header
   pw.Widget _buildHeader() {
@@ -105,17 +111,27 @@ Future<Uint8List> generateStockMovementPDF(
     );
   }
 
+  int totalPurchase = filteredStocks
+      .where((stock) =>
+          stock.type == 'in' && stock.referenceType == 'App\\Models\\Purchase')
+      .fold(0, (sum, stock) => sum + stock.quantity);
+
+  int totalSales = filteredStocks
+      .where((stock) =>
+          stock.type == 'out' && stock.referenceType == 'App\\Models\\Sale')
+      .fold(0, (sum, stock) => sum + stock.quantity);
+
+  int totalDead = filteredStocks
+      .where((stock) =>
+          stock.type == 'out' &&
+          stock.referenceType == 'App\\Models\\Pemeliharaan')
+      .fold(0, (sum, stock) => sum + stock.quantity);
+
   // Create pages with paginated content
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       build: (pw.Context context) {
-        int totalQuantityIn = filteredStocks
-            .where((stock) => stock.type == 'in')
-            .fold(0, (sum, stock) => sum + stock.quantity);
-        int totalQuantityOut = filteredStocks
-            .where((stock) => stock.type == 'out')
-            .fold(0, (sum, stock) => sum + stock.quantity);
         return [
           _buildHeader(),
           pw.Table.fromTextArray(
@@ -125,15 +141,17 @@ Future<Uint8List> generateStockMovementPDF(
               'Kandang',
               'Type',
               'Quantity',
+              'Sumber',
               'Notes',
             ],
             data: filteredStocks
                 .map((stock) => [
                       stock.id.toString(),
                       DateFormat('dd/MM/yyyy').format(stock.createdAt),
-                      stock.kandang?.namaKandang ?? 'Unknown',
+                      stock.kandang?.namaKandang ?? '-',
                       stock.type.toString(),
                       stock.quantity.toString(),
+                      _getSourceType(stock.referenceType),
                       stock.notes.toString(),
                     ])
                 .toList(),
@@ -143,18 +161,45 @@ Future<Uint8List> generateStockMovementPDF(
             cellAlignments: {
               0: pw.Alignment.centerLeft,
               1: pw.Alignment.center,
-              2: pw.Alignment.center,
-              3: pw.Alignment.center,
+              2: pw.Alignment.centerLeft,
+              3: pw.Alignment.centerLeft,
+              4: pw.Alignment.center,
+              5: pw.Alignment.center,
+              6: pw.Alignment.center,
             },
           ),
           pw.SizedBox(height: 20),
-          pw.Text(
-            'Total Stock Masuk: ${totalQuantityIn}',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-          pw.Text(
-            'Total Stock Keluar: ${totalQuantityOut}',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          pw.Container(
+            padding: pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius: pw.BorderRadius.circular(5),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Ringkasan:',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  'Total Stock Masuk (Purchase): ${totalPurchase}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.Text(
+                  'Total Stock Keluar (Sale): ${totalSales}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.Text(
+                  'Total Ayam Mati (Pemeliharaan): ${totalDead}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ];
       },
@@ -163,4 +208,17 @@ Future<Uint8List> generateStockMovementPDF(
   );
 
   return pdf.save();
+}
+
+String _getSourceType(String referenceType) {
+  switch (referenceType) {
+    case 'App\\Models\\Purchase':
+      return 'Pembelian';
+    case 'App\\Models\\Sale':
+      return 'Penjualan';
+    case 'App\\Models\\Pemeliharaan':
+      return 'Pemeliharaan';
+    default:
+      return 'Lainnya';
+  }
 }

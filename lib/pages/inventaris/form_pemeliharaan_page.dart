@@ -141,48 +141,62 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
   }
 
   Future<void> _savePemeliharaan() async {
+    // Basic validation
+    if (_umurController.text.isEmpty) {
+      showCustomSnackBar(context, 'Umur harus diisi!', SnackBarType.error);
+      return;
+    }
+
+    if (_jumlahAyamController.text.isEmpty) {
+      showCustomSnackBar(
+          context, 'Jumlah ayam harus diisi!', SnackBarType.error);
+      return;
+    }
+
+    // Validate jenis pakan if jumlah pakan is filled
+    if (_jumlahPakanController.text.isNotEmpty) {
+      if (_selectedJenisPakan == null) {
+        showCustomSnackBar(
+            context, 'Pilih jenis pakan terlebih dahulu!', SnackBarType.error);
+        return;
+      }
+
+      final jumlahPakan = int.tryParse(_jumlahPakanController.text);
+      if (jumlahPakan != null && jumlahPakan < 1) {
+        showCustomSnackBar(
+            context, 'Jumlah pakan minimal 1!', SnackBarType.error);
+        return;
+      }
+    }
+
     final jumlahAyam = int.tryParse(_jumlahAyamController.text) ?? 0;
     final kapasitasKandang = _kapasitasKandang ?? 0;
     final jumlahPakan = int.tryParse(_jumlahPakanController.text) ?? 0;
 
-    // Debugging: Print jumlahAyam, kapasitasKandang, and jumlahPakan
-    debugPrint('Jumlah Ayam: $jumlahAyam');
-    debugPrint('Kapasitas Kandang: $kapasitasKandang');
-    debugPrint('Jumlah Pakan: $jumlahPakan');
-
+    // Validate kandang capacity
     if (jumlahAyam > kapasitasKandang) {
       showCustomSnackBar(context, 'Jumlah ayam melebihi kapasitas kandang!',
           SnackBarType.error);
       return;
     }
 
-    final selectedPakan = _pakanList.firstWhere(
-      (pakan) => pakan.jenis == _selectedJenisPakan,
-      orElse: () => PakanModel(id: 0, jenis: ''),
-    );
+    // Get selected pakan
+    final selectedPakan = _selectedJenisPakan != null
+        ? _pakanList.firstWhere((pakan) => pakan.jenis == _selectedJenisPakan,
+            orElse: () => PakanModel(id: 0, jenis: ''))
+        : PakanModel(id: 0, jenis: '');
 
-    // Check if the selected pakan is sufficient
-    final sisaPakan = selectedPakan.sisa ?? 0;
-
-    // Debugging: Print available pakan stock
-    debugPrint('Sisa Pakan: $sisaPakan');
-
-    if (jumlahPakan > sisaPakan) {
-      showCustomSnackBar(
-          context, 'Stok pakan tidak cukup!', SnackBarType.error);
-      return;
+    // Check pakan stock if jumlah pakan is provided
+    if (jumlahPakan > 0) {
+      final sisaPakan = selectedPakan.sisa ?? 0;
+      if (jumlahPakan > sisaPakan) {
+        showCustomSnackBar(
+            context, 'Stok pakan tidak cukup!', SnackBarType.error);
+        return;
+      }
     }
 
-    final pemeliharaanService = PemeliharaanService();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final token = authProvider.user.token;
-
-    if (widget.kandangId == null || widget.kandangId == 0) {
-      showCustomSnackBar(context, 'Invalid kandang ID!', SnackBarType.error);
-      return;
-    }
-
-    // Format current date as string
+    // Prepare pemeliharaan data
     final now = DateTime.now().toIso8601String();
 
     final newPemeliharaan = PemeliharaanModel(
@@ -190,28 +204,35 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       kandangId: widget.kandangId!,
       umur: int.parse(_umurController.text),
       jumlahAyam: jumlahAyam,
-      jumlahPakan: jumlahPakan,
-      jenisPakanId: selectedPakan.id,
+      jumlahPakan: jumlahPakan > 0 ? jumlahPakan : null,
+      jenisPakanId: jumlahPakan > 0 ? selectedPakan.id : null,
       mati: int.tryParse(_matiController.text),
       keterangan: _keteranganController.text,
-      // Use existing timestamps if updating, create new ones if adding
       createdAt: widget.pemeliharaan?.createdAt ?? now,
       updatedAt: now,
     );
 
     try {
+      final pemeliharaanService = PemeliharaanService();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final token = authProvider.user.token;
+
       if (widget.pemeliharaan == null) {
         await pemeliharaanService.addPemeliharaan(newPemeliharaan, token!);
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } else {
         await pemeliharaanService.updatePemeliharaan(
             newPemeliharaan.id, newPemeliharaan, token!);
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
       showCustomSnackBar(
           context,
-          'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan!',
+          'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan: ${e.toString()}',
           SnackBarType.error);
     }
   }

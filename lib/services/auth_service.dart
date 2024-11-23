@@ -4,7 +4,7 @@ import 'package:simandika/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  String baseUrl = 'http://udandika.simandika.my.id/api';
+  String baseUrl = 'http://192.168.137.1:8000/api';
 
   Future<UserModel> register({
     required String name,

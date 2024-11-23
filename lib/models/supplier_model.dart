@@ -37,4 +37,9 @@ class SupplierModel {
       'updated_at': updatedAt.toIso8601String(),
     };
   }
+
+  @override
+  String toString() {
+    return 'Supplier{id: $id, name: $name, alamat: $alamat, phone: $phone, createdAt: $createdAt, updatedAt: $updatedAt}';
+  }
 }

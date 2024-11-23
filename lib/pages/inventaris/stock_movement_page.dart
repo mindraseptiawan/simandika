@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/stock_model.dart';
 import 'package:simandika/pages/pdf_preview.dart';
 import 'package:simandika/providers/auth_provider.dart';
+import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/customSnackbar_widget.dart';
@@ -20,6 +22,7 @@ class StockMovementPageState extends State<StockMovementPage> {
   late Future<List<StockMovementModel>> _stockMovementData;
   List<StockMovementModel> _stockMovements = [];
   List<StockMovementModel> _filteredStockMovements = [];
+  List<KandangModel> _kandangs = [];
   String reportType = 'Stock Ayam';
   // ignore: unused_field
   String _searchQuery = '';
@@ -27,6 +30,7 @@ class StockMovementPageState extends State<StockMovementPage> {
 
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
   DateTime _endDate = DateTime.now();
+  KandangModel? _selectedKandang;
 
   @override
   void initState() {
@@ -39,6 +43,11 @@ class StockMovementPageState extends State<StockMovementPage> {
           _stockMovements = data
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
           _filteredStockMovements = _stockMovements;
+        });
+      });
+      KandangService().getKandangs(token).then((data) {
+        setState(() {
+          _kandangs = data;
         });
       });
     } else {
@@ -57,14 +66,23 @@ class StockMovementPageState extends State<StockMovementPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredStockMovements = _stockMovements.where((movement) {
+        // Debug print to track supplier information
+        print("Movement ID: ${movement.id}");
+        print("Reference Type: ${movement.referenceType}");
+
         final typeLower = movement.type.toLowerCase();
         final reasonLower = movement.reason.toLowerCase();
         final dateLower =
             DateFormat('yyyy-MM-dd').format(movement.createdAt).toLowerCase();
 
-        return typeLower.contains(query) ||
-            reasonLower.contains(query) ||
-            dateLower.contains(query);
+        // Handle kandang filter
+        final kandangFilter = _selectedKandang == null ||
+            movement.kandangId == _selectedKandang!.id;
+
+        return (typeLower.contains(query) ||
+                reasonLower.contains(query) ||
+                dateLower.contains(query)) &&
+            kandangFilter;
       }).toList();
     });
   }
@@ -98,8 +116,8 @@ class StockMovementPageState extends State<StockMovementPage> {
       return;
     }
 
-    final pdfBytes = await generateStockMovementPDF(
-        _stockMovements, _startDate, _endDate, token, reportType);
+    final pdfBytes = await generateStockMovementPDF(_stockMovements, _startDate,
+        _endDate, token, reportType, _selectedKandang?.id);
     final fileName =
         'stock_movements_${DateFormat('yyyyMMdd').format(_startDate)}_${DateFormat('yyyyMMdd').format(_endDate)}.pdf';
 
@@ -140,6 +158,30 @@ class StockMovementPageState extends State<StockMovementPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            DropdownButtonFormField<KandangModel>(
+              decoration: InputDecoration(
+                labelText: 'Pilih Kandang',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              value: _selectedKandang,
+              items: _kandangs.map((kandang) {
+                return DropdownMenuItem<KandangModel>(
+                  value: kandang,
+                  child: Text(kandang.namaKandang),
+                );
+              }).toList(),
+              onChanged: (KandangModel? value) {
+                setState(() {
+                  _selectedKandang = value;
+                  _filterStockMovements();
+                });
+              },
+            ),
+            const SizedBox(height: 16.0),
             TextField(
               controller: _searchController,
               decoration: InputDecoration(

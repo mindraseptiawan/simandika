@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/order_model.dart';
 
 class OrderService {
-  String baseUrl = 'http://udandika.simandika.my.id/api';
+  String baseUrl = 'http://192.168.137.1:8000/api';
 
   // Method to get all orders
   Future<List<OrderModel>> getAllOrders(String token) async {
