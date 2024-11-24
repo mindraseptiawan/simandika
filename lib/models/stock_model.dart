@@ -3,6 +3,7 @@ import 'package:simandika/models/kandang_model.dart';
 class StockMovementModel {
   int id;
   int kandangId;
+  int purchaseId;
   String type;
   int quantity;
   String reason;
@@ -17,6 +18,7 @@ class StockMovementModel {
   StockMovementModel({
     required this.id,
     required this.kandangId,
+    required this.purchaseId,
     required this.type,
     required this.quantity,
     required this.reason,
@@ -37,6 +39,7 @@ class StockMovementModel {
     return StockMovementModel(
       id: json['id'],
       kandangId: json['kandang_id'],
+      purchaseId: json['purchase_id'],
       type: json['type'],
       quantity: json['quantity'],
       reason: json['reason'],

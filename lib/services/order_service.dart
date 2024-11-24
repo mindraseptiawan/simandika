@@ -159,7 +159,12 @@ class OrderService {
     }
   }
 
-  Future<bool> processOrder(String token, int orderId, int kandangId) async {
+  Future<bool> processOrder(
+    String token,
+    int orderId,
+    int kandangId,
+    List<int> purchaseIds,
+  ) async {
     var url = Uri.parse('$baseUrl/orders/$orderId/process');
     var headers = {
       'Content-Type': 'application/json',
@@ -168,6 +173,7 @@ class OrderService {
 
     var body = {
       'kandang_id': kandangId,
+      'purchase_ids': purchaseIds,
     };
 
     try {

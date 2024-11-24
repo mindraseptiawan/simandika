@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/pemeliharaan_model.dart';
+import 'package:simandika/models/purchase_model.dart';
 import 'package:simandika/models/stock_model.dart';
 import 'package:simandika/pages/inventaris/detail_pemeliharaan_page.dart';
 import 'package:simandika/pages/inventaris/form_pemeliharaan_page.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/pemeliharaan_service.dart';
+import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/services/stock_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/customSnackbar_widget.dart';
@@ -30,6 +32,7 @@ class DetailPageState extends State<DetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<KandangModel> _kandangData;
+  late Future<List<PurchaseModel>> _batchData;
   late Future<List<StockMovementModel>> _stockData;
   late Future<List<PemeliharaanModel>> _pemeliharaanData;
   bool _showFab = false;
@@ -52,10 +55,13 @@ class DetailPageState extends State<DetailPage>
       _pemeliharaanData = PemeliharaanService()
           .getPemeliharaansByKandang(widget.kandangId, token);
       _stockData = StockService().getStockByKandangId(widget.kandangId, token);
+      _batchData =
+          PurchaseService().getPurchaseByKandangId(widget.kandangId, token);
     } else {
       _kandangData = Future.error('Invalid token or kandang ID');
       _pemeliharaanData = Future.error('Invalid token or kandang ID');
       _stockData = Future.error('Invalid token or kandang ID');
+      _batchData = Future.error('Invalid token or kandang ID');
     }
   }
 
@@ -217,14 +223,20 @@ class DetailPageState extends State<DetailPage>
                   Text('No data found', style: TextStyle(color: Colors.white)));
         } else {
           final kandang = snapshot.data!;
+          final token =
+              Provider.of<AuthProvider>(context, listen: false).user.token;
+
           return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                  elevation: 4,
-                  color: primaryColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Kandang Details Card
+                  Card(
+                    elevation: 4,
+                    color: primaryColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
                       child: Wrap(
                         spacing: 8.0,
                         runSpacing: 4.0,
@@ -241,7 +253,177 @@ class DetailPageState extends State<DetailPage>
                         ],
                       ),
                     ),
-                  )));
+                  ),
+                  const SizedBox(height: 16),
+                  // Purchase Information Card
+                  if (token != null)
+                    FutureBuilder<List<PurchaseModel>>(
+                      future: PurchaseService()
+                          .getPurchaseByKandangId(kandang.id, token),
+                      builder: (context, purchaseSnapshot) {
+                        if (purchaseSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (purchaseSnapshot.hasError) {
+                          return Center(
+                              child: Text('Tidak Ada Batch Ayam',
+                                  style: const TextStyle(color: Colors.white)));
+                        } else if (!purchaseSnapshot.hasData ||
+                            purchaseSnapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No purchase data found',
+                                  style: TextStyle(color: Colors.white)));
+                        } else {
+                          final filteredPurchases = purchaseSnapshot.data!
+                              .where((purchase) =>
+                                  purchase.currentStock != null &&
+                                  purchase.currentStock! > 0)
+                              .toList();
+                          return Card(
+                            elevation: 4,
+                            color: primaryColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Informasi Purchase',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Table(columnWidths: const {
+                                    0: FlexColumnWidth(1.2), // Purchase ID
+                                    1: FlexColumnWidth(1.2), // Quantity
+                                    2: FlexColumnWidth(1.2), // Current Stock
+                                    3: FlexColumnWidth(1.5), // Age
+                                  }, children: [
+                                    const TableRow(
+                                      children: [
+                                        TableCell(
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              ' Batch ID',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              'Quantity',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              'Current',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 8.0),
+                                            child: Text(
+                                              'Umur',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    ...filteredPurchases.map((purchase) {
+                                      final age = DateTime.now()
+                                          .difference(purchase.createdAt)
+                                          .inDays;
+                                      return TableRow(
+                                        children: [
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8.0),
+                                              child: Text(
+                                                '#${purchase.id}',
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8.0),
+                                              child: Text(
+                                                '${purchase.quantity}',
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8.0),
+                                              child: Text(
+                                                '${purchase.currentStock ?? 0}',
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8.0),
+                                              child: Text(
+                                                '$age hari',
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ]),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                ],
+              ),
+            ),
+          );
         }
       },
     );
@@ -370,7 +552,7 @@ class DetailPageState extends State<DetailPage>
                                 ),
                               ),
                               Text(
-                                'Umur ${pemeliharaan.umur} hari',
+                                'Batch Ayam #${pemeliharaan.purchaseId}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                 ),

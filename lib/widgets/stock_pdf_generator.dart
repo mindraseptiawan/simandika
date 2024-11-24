@@ -49,7 +49,7 @@ Future<Uint8List> generateStockMovementPDF(
             pw.Container(
               width: 60,
               height: 60,
-              child: pw.Image(logoImage), // Use the logoImage MemoryImage here
+              child: pw.Image(logoImage),
             ),
             pw.SizedBox(width: 10),
             pw.Expanded(
@@ -111,6 +111,7 @@ Future<Uint8List> generateStockMovementPDF(
     );
   }
 
+  // Calculate totals
   int totalPurchase = filteredStocks
       .where((stock) =>
           stock.type == 'in' && stock.referenceType == 'App\\Models\\Purchase')
@@ -127,46 +128,92 @@ Future<Uint8List> generateStockMovementPDF(
           stock.referenceType == 'App\\Models\\Pemeliharaan')
       .fold(0, (sum, stock) => sum + stock.quantity);
 
-  // Create pages with paginated content
+  // Create pages with improved table formatting
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       build: (pw.Context context) {
         return [
           _buildHeader(),
-          pw.Table.fromTextArray(
-            headers: [
-              'ID',
-              'Tanggal',
-              'Kandang',
-              'Type',
-              'Quantity',
-              'Sumber',
-              'Notes',
-            ],
-            data: filteredStocks
-                .map((stock) => [
-                      stock.id.toString(),
-                      DateFormat('dd/MM/yyyy').format(stock.createdAt),
-                      stock.kandang?.namaKandang ?? '-',
-                      stock.type.toString(),
-                      stock.quantity.toString(),
-                      _getSourceType(stock.referenceType),
-                      stock.notes.toString(),
-                    ])
-                .toList(),
-            border: null,
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-            cellAlignments: {
-              0: pw.Alignment.centerLeft,
-              1: pw.Alignment.center,
-              2: pw.Alignment.centerLeft,
-              3: pw.Alignment.centerLeft,
-              4: pw.Alignment.center,
-              5: pw.Alignment.center,
-              6: pw.Alignment.center,
+          pw.Table(
+            columnWidths: {
+              0: const pw.FixedColumnWidth(30), // ID
+              1: const pw.FixedColumnWidth(80), // Date
+              2: const pw.FixedColumnWidth(70), // Kandang
+              3: const pw.FixedColumnWidth(40), // Type
+              4: const pw.FixedColumnWidth(50), // Qty
+              5: const pw.FlexColumnWidth(2.5), // Notes - flexible width
             },
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            children: [
+              // Header row
+              pw.TableRow(
+                decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  'ID',
+                  'Date',
+                  'Kandang',
+                  'Type',
+                  'Qty',
+                  'Notes',
+                ]
+                    .map((header) => pw.Container(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text(
+                            header,
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                            textAlign: pw.TextAlign.center,
+                          ),
+                        ))
+                    .toList(),
+              ),
+              // Data rows
+              ...filteredStocks.map((stock) => pw.TableRow(
+                    children: [
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(stock.id.toString(),
+                            textAlign: pw.TextAlign.center),
+                      ),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          DateFormat('dd/MM/yyyy').format(stock.createdAt),
+                          textAlign: pw.TextAlign.left,
+                        ),
+                      ),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          stock.kandang?.namaKandang ?? '-',
+                          textAlign: pw.TextAlign.left,
+                        ),
+                      ),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          stock.type.toString(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          stock.quantity.toString(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Container(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          stock.notes.toString(),
+                          textAlign: pw.TextAlign.left,
+                          maxLines: 3,
+                        ),
+                      ),
+                    ],
+                  )),
+            ],
           ),
           pw.SizedBox(height: 20),
           pw.Container(
@@ -208,17 +255,4 @@ Future<Uint8List> generateStockMovementPDF(
   );
 
   return pdf.save();
-}
-
-String _getSourceType(String referenceType) {
-  switch (referenceType) {
-    case 'App\\Models\\Purchase':
-      return 'Pembelian';
-    case 'App\\Models\\Sale':
-      return 'Penjualan';
-    case 'App\\Models\\Pemeliharaan':
-      return 'Pemeliharaan';
-    default:
-      return 'Lainnya';
-  }
 }

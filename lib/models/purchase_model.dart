@@ -12,8 +12,9 @@ class PurchaseModel {
   final double totalPrice;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final TransaksiModel? transaction; // Relationship with Transaction
+  final TransaksiModel? transaction;
   final SupplierModel? supplier;
+  final int? currentStock;
 
   PurchaseModel({
     required this.id,
@@ -27,6 +28,7 @@ class PurchaseModel {
     required this.updatedAt,
     this.transaction,
     this.supplier,
+    this.currentStock,
   });
 
   factory PurchaseModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class PurchaseModel {
       supplier: json['supplier'] != null
           ? SupplierModel.fromJson(json['supplier'])
           : null,
+      currentStock: json['currentStock'],
     );
   }
 
@@ -53,6 +56,7 @@ class PurchaseModel {
     return {
       'id': id,
       'transaction_id': transactionId,
+      'kandang_id': kandangId,
       'supplier_id': supplierId,
       'quantity': quantity,
       'price_per_unit': pricePerUnit.toString(),
@@ -61,6 +65,7 @@ class PurchaseModel {
       'updated_at': updatedAt.toIso8601String(),
       'transaction': transaction?.toJson(),
       'supplier': supplier?.toJson(),
+      'currentStock': currentStock,
     };
   }
 

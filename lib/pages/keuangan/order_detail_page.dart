@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/order_model.dart';
+import 'package:simandika/models/purchase_model.dart';
 import 'package:simandika/services/kandang_service.dart';
 import 'package:simandika/services/order_service.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/customSnackbar_widget.dart';
 
@@ -22,14 +24,17 @@ class OrderDetailPage extends StatefulWidget {
 class _OrderDetailPageState extends State<OrderDetailPage> {
   late Future<OrderModel> _orderDetails;
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _paymentProofController = TextEditingController();
+  final KandangService _kandangService = KandangService();
+  final PurchaseService _purchaseService = PurchaseService();
+  List<int> _selectedPurchases = [];
+  List<PurchaseModel> _availablePurchases = [];
+  List<KandangModel> _kandangList = [];
   bool _isLoading = false;
   String? _errorMessage;
   String? _paymentProofPath;
   String? _selectedPaymentMethod = 'cash';
   int? _selectedKandang;
-  final TextEditingController _paymentProofController = TextEditingController();
-  List<KandangModel> _kandangList = [];
-  final KandangService _kandangService = KandangService();
 
   @override
   void initState() {
@@ -53,6 +58,36 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         // Handle errors and refresh token if needed
         debugPrint('Failed to load kandangs: $e');
         // Optionally show a message or refresh token if needed
+      }
+    }
+  }
+
+  Future<void> _loadPurchaseData(int kandangId) async {
+    setState(() {
+      _isLoading = true;
+      _selectedPurchases = [];
+      _availablePurchases = [];
+    });
+    final token = Provider.of<AuthProvider>(context, listen: false).user.token;
+    try {
+      final purchases =
+          await _purchaseService.getPurchaseByKandangId(kandangId, token!);
+      if (!mounted) return;
+      setState(() {
+        _availablePurchases = purchases;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching purchases: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        showCustomSnackBar(
+          context,
+          'Failed to load purchases: $e',
+          SnackBarType.error,
+        );
       }
     }
   }
@@ -134,42 +169,61 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Future<void> _processOrder() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    if (_selectedKandang == null) {
+      showCustomSnackBar(
+        context,
+        'Please select a kandang first',
+        SnackBarType.error,
+      );
+      return;
+    }
+
+    if (_selectedPurchases.isEmpty) {
+      showCustomSnackBar(
+        context,
+        'Please select at least one purchase batch',
+        SnackBarType.error,
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
 
-    if (_selectedKandang != null) {
-      try {
-        final orderService = OrderService();
-        final success = await orderService.processOrder(
-            token!, widget.orderId!, _selectedKandang!);
+    try {
+      final orderService = OrderService();
+      final success = await orderService.processOrder(
+        token!,
+        widget.orderId!,
+        _selectedKandang!,
+        _selectedPurchases,
+      );
 
-        if (success) {
-          showCustomSnackBar(
-              context, 'Order processed successfully', SnackBarType.success);
-          Navigator.pop(context, true);
-          _fetchOrderDetails();
-        }
-      } catch (e) {
-        if (e.toString() == 'Stock in kandang is insufficient') {
-          showCustomSnackBar(
-              context, 'Stock in kandang is insufficient', SnackBarType.error);
-        } else {
-          showCustomSnackBar(
-              context, 'Stock dikandang tidak cukup', SnackBarType.error);
-        }
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+      if (success) {
+        showCustomSnackBar(
+          context,
+          'Order processed successfully',
+          SnackBarType.success,
+        );
+        Navigator.pop(context, true);
+        _fetchOrderDetails();
       }
-    } else {
-      // Handle the case where _selectedKandang is null
-
-      showCustomSnackBar(
-          context, 'Please select a kandang', SnackBarType.error);
+    } catch (e) {
+      if (e.toString().contains('insufficient')) {
+        showCustomSnackBar(
+          context,
+          'Stock in kandang is insufficient',
+          SnackBarType.error,
+        );
+      } else {
+        showCustomSnackBar(
+          context,
+          'Error processing order: $e',
+          SnackBarType.error,
+        );
+      }
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -295,6 +349,103 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     });
   }
 
+  Widget _buildKandangDropdown() {
+    return Row(
+      children: [
+        const Text(
+          'Select Kandang: ',
+          style: TextStyle(color: Colors.white),
+        ),
+        DropdownButton<int>(
+          value: _selectedKandang,
+          hint: const Text('Choose Kandang',
+              style: TextStyle(color: Colors.white70)),
+          items: _kandangList
+              .where((kandang) => kandang.status == true)
+              .map((kandang) => DropdownMenuItem(
+                    value: kandang.id,
+                    child: Text(
+                      '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedKandang = value;
+            });
+            if (value != null) {
+              _loadPurchaseData(value);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPurchaseSelection() {
+    if (_selectedKandang == null) {
+      return const SizedBox
+          .shrink(); // Don't show anything if no kandang selected
+    }
+
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_availablePurchases.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          'No available purchases for this kandang',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Purchase Batches:',
+          style: TextStyle(color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          constraints: const BoxConstraints(maxHeight: 200),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: _availablePurchases.map((purchase) {
+                return CheckboxListTile(
+                  title: Text(
+                    'Batch #${purchase.id} - Available: ${purchase.currentStock}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  value: _selectedPurchases.contains(purchase.id),
+                  onChanged: (bool? selected) {
+                    setState(() {
+                      if (selected ?? false) {
+                        _selectedPurchases.add(purchase.id);
+                      } else {
+                        _selectedPurchases.remove(purchase.id);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -371,41 +522,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                           ] else if (order.status ==
                                               'price_set') ...[
                                             const SizedBox(height: 20),
-                                            Row(
-                                              children: [
-                                                const Text(
-                                                  'Select Kandang: ',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                                DropdownButton(
-                                                  value: _selectedKandang,
-                                                  items: _kandangList
-                                                      .where((kandang) =>
-                                                          kandang.status ==
-                                                          true)
-                                                      .map((kandang) =>
-                                                          DropdownMenuItem(
-                                                            value: kandang.id,
-                                                            child: Text(
-                                                                '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
-                                                                style: const TextStyle(
-                                                                    color: Colors
-                                                                        .black)),
-                                                          ))
-                                                      .toList(),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      _selectedKandang = value;
-                                                    });
-                                                  },
-                                                ),
-                                              ],
-                                            ),
+                                            _buildKandangDropdown(),
+                                            const SizedBox(height: 16),
+                                            _buildPurchaseSelection(),
+                                            const SizedBox(height: 16),
                                             ElevatedButton(
                                               onPressed: _processOrder,
                                               child: const Text('Process Order',
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                       color: Colors.black)),
                                             ),
                                           ] else if (order.status ==

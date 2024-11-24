@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/models/kandang_model.dart';
 import 'package:simandika/models/pemeliharaan_model.dart';
+import 'package:simandika/models/purchase_model.dart';
 import 'package:simandika/providers/auth_provider.dart';
 import 'package:simandika/services/pemeliharaan_service.dart';
 import 'package:simandika/services/pakan_service.dart';
 import 'package:simandika/services/kandang_service.dart';
+import 'package:simandika/services/purchase_service.dart';
 import 'package:simandika/theme.dart';
 import 'package:simandika/widgets/customSnackbar_widget.dart';
 import 'package:simandika/models/pakan_model.dart';
@@ -23,23 +25,21 @@ class FormPemeliharaanPage extends StatefulWidget {
 }
 
 class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
-  late TextEditingController _umurController;
   late TextEditingController _jumlahAyamController;
   late TextEditingController _jumlahPakanController;
   late TextEditingController _matiController;
   late TextEditingController _keteranganController;
 
   String? _selectedJenisPakan;
+  int? _selectedPurchase;
   List<PakanModel> _pakanList = [];
+  List<PurchaseModel> _purchaseList = [];
   int? _stokPakan;
   int? _kapasitasKandang;
 
   @override
   void initState() {
     super.initState();
-    _umurController = TextEditingController(
-      text: widget.pemeliharaan?.umur.toString() ?? '',
-    );
     _jumlahAyamController = TextEditingController(
       text: widget.pemeliharaan?.jumlahAyam.toString() ?? '',
     );
@@ -63,7 +63,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       });
     }
 
-    // Load pakan data
+    _loadPurchaseData();
     _loadPakanData();
     if (widget.kandang == null && widget.kandangId != null) {
       _loadKandangData();
@@ -80,7 +80,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       // Debugging: Print pakan data
       debugPrint(
           'Pakan List: ${pakanList.map((pakan) => '${pakan.jenis}: ${pakan.sisa}').toList()}');
-
+      if (!mounted) return;
       setState(() {
         _pakanList = pakanList;
 
@@ -99,17 +99,61 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
               .firstWhere((pakan) => pakan.jenis == _selectedJenisPakan,
                   orElse: () => PakanModel(id: 0, jenis: ''))
               .sisa;
-
-          // Debugging: Print selected pakan and stock
           debugPrint('Selected Jenis Pakan: $_selectedJenisPakan');
-          debugPrint('Stok Pakan: $_stokPakan');
         }
       });
     } catch (e) {
       debugPrint('Failed to load pakan data: $e');
+      if (mounted) {
+        showCustomSnackBar(
+            context, 'Failed to load pakan data!', SnackBarType.error);
+      }
+    }
+  }
 
-      showCustomSnackBar(
-          context, 'Failed to load pakan data!', SnackBarType.error);
+  Future<void> _loadPurchaseData() async {
+    try {
+      final purchaseService = PurchaseService();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final token = authProvider.user.token;
+      final purchaseList = await purchaseService.getPurchaseByKandangId(
+          widget.kandangId!, token!);
+
+      debugPrint(
+          'Batch List: ${purchaseList.map((purchase) => '${purchase.id}: ${purchase.currentStock}').toList()}');
+      if (!mounted) return;
+      setState(() {
+        _purchaseList = purchaseList;
+
+        if (_purchaseList.isEmpty) {
+          showCustomSnackBar(context, 'Anda Belum menambahkan Batch Ayam!',
+              SnackBarType.error);
+        }
+
+        if (widget.pemeliharaan != null) {
+          _selectedPurchase = _purchaseList
+              .firstWhere(
+                  (purchase) => purchase.id == widget.pemeliharaan?.purchaseId,
+                  orElse: () => PurchaseModel(
+                      id: 0,
+                      transactionId: 0,
+                      kandangId: 0,
+                      supplierId: 0,
+                      quantity: 0,
+                      pricePerUnit: 0,
+                      totalPrice: 0,
+                      createdAt: DateTime.now(),
+                      currentStock: 0,
+                      updatedAt: DateTime.now()))
+              .id;
+        }
+      });
+    } catch (e) {
+      debugPrint('Failed to load batch data: $e');
+      if (mounted) {
+        showCustomSnackBar(
+            context, 'Failed to load batch data!', SnackBarType.error);
+      }
     }
   }
 
@@ -142,8 +186,8 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
 
   Future<void> _savePemeliharaan() async {
     // Basic validation
-    if (_umurController.text.isEmpty) {
-      showCustomSnackBar(context, 'Umur harus diisi!', SnackBarType.error);
+    if (_selectedPurchase == null) {
+      showCustomSnackBar(context, 'Pilih Batch Ayam!', SnackBarType.error);
       return;
     }
 
@@ -196,13 +240,39 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       }
     }
 
+    final selectedPurchase = _selectedPurchase != null
+        ? _purchaseList.firstWhere(
+            (purchase) => purchase.id == _selectedPurchase,
+            orElse: () => PurchaseModel(
+                id: 0,
+                transactionId: 0,
+                kandangId: 0,
+                supplierId: 0,
+                quantity: 0,
+                pricePerUnit: 0,
+                totalPrice: 0,
+                createdAt: DateTime.now(),
+                currentStock: 0,
+                updatedAt: DateTime.now()))
+        : PurchaseModel(
+            id: 0,
+            transactionId: 0,
+            kandangId: 0,
+            supplierId: 0,
+            quantity: 0,
+            pricePerUnit: 0,
+            totalPrice: 0,
+            createdAt: DateTime.now(),
+            currentStock: 0,
+            updatedAt: DateTime.now());
+
     // Prepare pemeliharaan data
     final now = DateTime.now().toIso8601String();
 
     final newPemeliharaan = PemeliharaanModel(
       id: widget.pemeliharaan?.id ?? 0,
       kandangId: widget.kandangId!,
-      umur: int.parse(_umurController.text),
+      purchaseId: selectedPurchase.id,
       jumlahAyam: jumlahAyam,
       jumlahPakan: jumlahPakan > 0 ? jumlahPakan : null,
       jenisPakanId: jumlahPakan > 0 ? selectedPakan.id : null,
@@ -211,7 +281,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       createdAt: widget.pemeliharaan?.createdAt ?? now,
       updatedAt: now,
     );
-
+    print('Payload Data: ${newPemeliharaan.toJson()}');
     try {
       final pemeliharaanService = PemeliharaanService();
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -307,6 +377,52 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     );
   }
 
+  Widget _buildBatchDropdown() {
+    debugPrint(
+        'Dropdown Values: ${_purchaseList.map((purchase) => purchase.currentStock).toList()}');
+    debugPrint('Selected Value: $_selectedPurchase');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Batch Ayam',
+          style: primaryTextStyle.copyWith(
+              fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: backgroundColor22,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonFormField<int>(
+            value: _selectedPurchase,
+            items: _purchaseList
+                .map((purchase) => DropdownMenuItem(
+                      value: purchase.id,
+                      child: Text(
+                        'Batch #${purchase.id} (Stock: ${purchase.currentStock})',
+                        style: blackTextStyle,
+                      ),
+                    ))
+                .toList(),
+            onChanged: (newValue) {
+              setState(() {
+                _selectedPurchase = newValue;
+              });
+            },
+            decoration: InputDecoration.collapsed(
+              hintText: 'Pilih Batch Ayam',
+              hintStyle: subtitleTextStyle,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -339,13 +455,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildInputField(
-                    label: 'Umur',
-                    controller: _umurController,
-                    hintText: 'Umur',
-                    keyboardType: TextInputType.number,
-                    iconPath: 'assets/ayama.png',
-                  ),
+                  _buildBatchDropdown(),
                   const SizedBox(height: 16),
                   _buildInputField(
                     label: 'Jumlah Ayam',
