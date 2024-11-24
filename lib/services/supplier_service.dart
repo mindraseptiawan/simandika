@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:simandika/models/supplier_model.dart';
 
 class SupplierService {
-  String baseUrl = 'http://192.168.137.1:8000/api';
+  String baseUrl = 'http://udandika.simandika.my.id/api';
 
   // Method to get all suppliers
   Future<List<SupplierModel>> getAllSuppliers(String token) async {
