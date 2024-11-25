@@ -139,7 +139,7 @@ class OrderService {
   }
 
   Future<bool> setPricePerUnit(
-      int orderId, double pricePerUnit, String token) async {
+      int orderId, double pricePerUnit, double ongkir, String token) async {
     var url = Uri.parse('$baseUrl/orders/$orderId/set-price');
     var headers = {
       'Content-Type': 'application/json',
@@ -147,6 +147,7 @@ class OrderService {
     };
     var body = jsonEncode({
       'price_per_unit': pricePerUnit,
+      'ongkir': ongkir,
     });
 
     var response = await http.post(url, headers: headers, body: body);

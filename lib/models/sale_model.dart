@@ -9,6 +9,7 @@ class SaleModel {
   final int orderId;
   final int quantity;
   final double pricePerUnit;
+  final double? ongkir;
   final double totalPrice;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -23,6 +24,7 @@ class SaleModel {
     required this.orderId,
     required this.quantity,
     required this.pricePerUnit,
+    this.ongkir,
     required this.totalPrice,
     required this.createdAt,
     required this.updatedAt,
@@ -39,6 +41,9 @@ class SaleModel {
       orderId: json['order_id'],
       quantity: json['quantity'],
       pricePerUnit: double.parse(json['price_per_unit'].toString()),
+      ongkir: json['ongkir'] != null
+          ? double.parse(json['ongkir'].toString())
+          : null,
       totalPrice: double.parse(json['total_price'].toString()),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
@@ -60,6 +65,7 @@ class SaleModel {
       'order_id': orderId,
       'quantity': quantity,
       'price_per_unit': pricePerUnit.toString(),
+      'ongkir': ongkir?.toString(),
       'total_price': totalPrice.toString(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),

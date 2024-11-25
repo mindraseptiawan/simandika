@@ -22,6 +22,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
   late TextEditingController _quantityController;
   late TextEditingController _alamatController;
   late TextEditingController _priceController;
+  late TextEditingController _ongkirController;
   KandangModel? _selectedKandang;
   List<KandangModel> _kandangs = [];
   final KandangService _kandangService = KandangService();
@@ -40,6 +41,8 @@ class FormPurchasePageState extends State<FormPurchasePage> {
         TextEditingController(text: widget.purchase?.supplier?.alamat ?? '');
     _priceController = TextEditingController(
         text: widget.purchase?.pricePerUnit.toString() ?? '');
+    _ongkirController =
+        TextEditingController(text: widget.purchase?.ongkir.toString() ?? '');
   }
 
   Future<void> _loadKandangs() async {
@@ -68,6 +71,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
     _quantityController.dispose();
     _alamatController.dispose();
     _priceController.dispose();
+    _ongkirController.dispose();
     super.dispose();
   }
 
@@ -83,6 +87,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
     // Validate and parse input
     int? quantity = int.tryParse(_quantityController.text);
     double? pricePerUnit = double.tryParse(_priceController.text);
+    double? ongkir = double.tryParse(_ongkirController.text);
 
     if (quantity == null || pricePerUnit == null) {
       showCustomSnackBar(context, 'Jumlah dan harga harus berupa angka valid',
@@ -96,6 +101,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
       'quantity': quantity,
       'alamat': _alamatController.text,
       'price_per_unit': pricePerUnit,
+      'ongkir': ongkir,
       'kandang_id': _selectedKandang!.id,
     };
 
@@ -241,6 +247,13 @@ class FormPurchasePageState extends State<FormPurchasePage> {
                   label: 'Harga Per Ayam',
                   controller: _priceController,
                   hintText: 'Harga Ayam',
+                  iconPath: 'assets/jumlah.png',
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Biaya Tambahan',
+                  controller: _ongkirController,
+                  hintText: 'Biaya Pengiriman',
                   iconPath: 'assets/jumlah.png',
                 ),
                 const SizedBox(height: 20),

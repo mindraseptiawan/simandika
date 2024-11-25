@@ -24,6 +24,7 @@ class OrderDetailPage extends StatefulWidget {
 class _OrderDetailPageState extends State<OrderDetailPage> {
   late Future<OrderModel> _orderDetails;
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _ongkirController = TextEditingController();
   final TextEditingController _paymentProofController = TextEditingController();
   final KandangService _kandangService = KandangService();
   final PurchaseService _purchaseService = PurchaseService();
@@ -143,13 +144,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     });
     final token = Provider.of<AuthProvider>(context, listen: false).user.token;
     final pricePerUnit = double.tryParse(_priceController.text) ?? 0.0;
+    final ongkir = double.tryParse(_ongkirController.text) ?? 0.0;
 
     try {
       final orderService = OrderService();
       debugPrint(
           "Processing order: ${widget.orderId} with price: $pricePerUnit");
       final success = await orderService.setPricePerUnit(
-          widget.orderId!, pricePerUnit, token!);
+          widget.orderId!, pricePerUnit, ongkir, token!);
 
       if (success) {
         showCustomSnackBar(context, 'Set Harga Sukses!', SnackBarType.success);
@@ -511,6 +513,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                               controller: _priceController,
                                               decoration: const InputDecoration(
                                                   labelText: 'Price per Unit'),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
+                                            TextField(
+                                              controller: _ongkirController,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Biaya Tambahan'),
                                               keyboardType:
                                                   TextInputType.number,
                                             ),
