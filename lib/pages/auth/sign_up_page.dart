@@ -24,12 +24,12 @@ class SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordController = TextEditingController(text: '');
 
   bool isLoading = false;
+  bool obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     final konteks = context;
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
-    bool obscurePassword = true; // Menyimpan status visibilitas password
 
     void togglePasswordVisibility() {
       setState(() {

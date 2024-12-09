@@ -144,6 +144,16 @@ class _PurchaseDetailPageState extends State<PurchaseDetailPage> {
                               'Supplier', purchase.supplier?.name ?? 'Unknown'),
                           _buildDetailRow('Quantity', '${purchase.quantity}'),
                           _buildDetailRow(
+                              'Price Per Unit',
+                              NumberFormat.currency(
+                                      locale: 'id_ID ', decimalDigits: 2)
+                                  .format(purchase.pricePerUnit)),
+                          _buildDetailRow(
+                              'Other',
+                              NumberFormat.currency(
+                                      locale: 'id_ID ', decimalDigits: 2)
+                                  .format(purchase.ongkir ?? 0)),
+                          _buildDetailRow(
                               'Total Harga',
                               NumberFormat.currency(
                                       locale: 'id_ID ', decimalDigits: 2)

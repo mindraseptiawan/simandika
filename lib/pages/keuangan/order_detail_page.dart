@@ -73,9 +73,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     try {
       final purchases =
           await _purchaseService.getPurchaseByKandangId(kandangId, token!);
+      final availablePurchases = purchases
+          .where((purchase) =>
+              purchase.currentStock != null && purchase.currentStock! > 0)
+          .toList();
       if (!mounted) return;
       setState(() {
-        _availablePurchases = purchases;
+        _availablePurchases = availablePurchases;
         _isLoading = false;
       });
     } catch (e) {
@@ -220,7 +224,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       } else {
         showCustomSnackBar(
           context,
-          'Error processing order: $e',
+          'Gagal Memproses Order',
           SnackBarType.error,
         );
       }
@@ -352,36 +356,64 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildKandangDropdown() {
-    return Row(
-      children: [
-        const Text(
-          'Select Kandang: ',
-          style: TextStyle(color: Colors.white),
-        ),
-        DropdownButton<int>(
-          value: _selectedKandang,
-          hint: const Text('Choose Kandang',
-              style: TextStyle(color: Colors.white70)),
-          items: _kandangList
-              .where((kandang) => kandang.status == true)
-              .map((kandang) => DropdownMenuItem(
-                    value: kandang.id,
-                    child: Text(
-                      '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedKandang = value;
-            });
-            if (value != null) {
-              _loadPurchaseData(value);
-            }
-          },
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          const Text(
+            'Select Kandang: ',
+            style: TextStyle(color: Colors.white),
+          ),
+          DropdownButton<int>(
+            value: _selectedKandang,
+            hint: const Text('Choose Kandang',
+                style: TextStyle(color: Colors.white70)),
+            isExpanded: false,
+            selectedItemBuilder: (BuildContext context) {
+              return _kandangList
+                  .where((kandang) => kandang.status == true)
+                  .map<Widget>((kandang) {
+                return Container(
+                  constraints: BoxConstraints(maxWidth: 200),
+                  child: Text(
+                    '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
+                    style: const TextStyle(color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList();
+            },
+            style: const TextStyle(color: Colors.white),
+            items: _kandangList
+                .where((kandang) => kandang.status == true)
+                .map((kandang) => DropdownMenuItem(
+                      value: kandang.id,
+                      child: Container(
+                        constraints: BoxConstraints(
+                            maxWidth: 200), // Batasi lebar maksimum text
+                        child: Text(
+                          '${kandang.namaKandang} (${kandang.jumlahReal}/${kandang.kapasitas})',
+                          style: const TextStyle(color: Colors.black),
+                          overflow:
+                              TextOverflow.ellipsis, // Handle text overflow
+                        ),
+                      ),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedKandang = value;
+              });
+              if (value != null) {
+                _loadPurchaseData(value);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -512,14 +544,25 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             TextField(
                                               controller: _priceController,
                                               decoration: const InputDecoration(
-                                                  labelText: 'Price per Unit'),
+                                                labelText: 'Price per Unit',
+                                                labelStyle: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              style: const TextStyle(
+                                                  color: Colors
+                                                      .white), // Style untuk input text
                                               keyboardType:
                                                   TextInputType.number,
                                             ),
                                             TextField(
                                               controller: _ongkirController,
                                               decoration: const InputDecoration(
-                                                  labelText: 'Biaya Tambahan'),
+                                                labelText: 'Biaya Tambahan',
+                                                labelStyle: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              style: const TextStyle(
+                                                  color: Colors.white),
                                               keyboardType:
                                                   TextInputType.number,
                                             ),
@@ -532,7 +575,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                               'price_set') ...[
                                             const SizedBox(height: 20),
                                             _buildKandangDropdown(),
-                                            const SizedBox(height: 16),
                                             _buildPurchaseSelection(),
                                             const SizedBox(height: 16),
                                             ElevatedButton(
