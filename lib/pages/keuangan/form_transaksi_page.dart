@@ -45,7 +45,9 @@ class FormTransaksiPageState extends State<FormTransaksiPage> {
       backgroundColor: backgroundColor1,
       appBar: AppBar(
         title: Text(
-            widget.transaksi != null ? 'Update Transaksi' : 'Tambah Transaksi',
+            widget.transaksi != null
+                ? 'Perbarui Transaksi'
+                : 'Tambah Transaksi',
             style: TextStyle(color: Colors.white)),
         backgroundColor: primaryColor,
       ),

@@ -110,14 +110,14 @@ class FormPurchasePageState extends State<FormPurchasePage> {
         await PurchaseService().createPurchase(purchaseData, token!);
 
         showCustomSnackBar(
-            context, 'Pembelian berhasil dibuat', SnackBarType.success);
+            context, 'Data Pembelian berhasil dibuat', SnackBarType.success);
       } else {
         final updatedPurchase = await PurchaseService()
             .updatePurchase(widget.purchase!.id, purchaseData, token!);
         debugPrint(
-            'Updated purchase: $updatedPurchase'); // Log pembelian yang diperbarui
-        showCustomSnackBar(
-            context, 'Order berhasil diperbarui', SnackBarType.success);
+            'Data Pembelian berhasil diperbarui: $updatedPurchase'); // Log pembelian yang diperbarui
+        showCustomSnackBar(context, 'Data Pembelian berhasil diperbarui',
+            SnackBarType.success);
       }
       Navigator.pop(context, true);
     } catch (e) {
@@ -125,7 +125,7 @@ class FormPurchasePageState extends State<FormPurchasePage> {
 
       showCustomSnackBar(
           context,
-          'Gagal ${widget.purchase == null ? 'membuat' : 'memperbarui'} order: ${e.toString()}',
+          'Gagal ${widget.purchase == null ? 'membuat' : 'memperbarui'} data pembelian: Perhatikan Pengisian Form',
           SnackBarType.error);
     }
   }
@@ -205,8 +205,8 @@ class FormPurchasePageState extends State<FormPurchasePage> {
                 Center(
                   child: Text(
                     widget.purchase == null
-                        ? 'Informasi Purchase'
-                        : 'Edit Purchase',
+                        ? 'Informasi Pembelian'
+                        : 'Edit Pembelian',
                     style: primaryTextStyle.copyWith(
                       fontSize: 20,
                       color: Colors.white,

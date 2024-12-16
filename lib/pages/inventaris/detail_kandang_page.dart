@@ -289,7 +289,7 @@ class DetailPageState extends State<DetailPage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Informasi Purchase',
+                                    'Informasi Pembelian',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,

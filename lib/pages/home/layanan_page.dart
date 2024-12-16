@@ -262,7 +262,7 @@ class LayananPageState extends State<LayananPage> {
       case 2:
         return 'Order';
       case 3:
-        return 'Purchase';
+        return 'Pembelian';
       case 4:
         return 'Kandang Ayam';
       case 5:
