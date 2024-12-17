@@ -25,17 +25,63 @@ class CashflowChart extends StatefulWidget {
 
 class _CashflowChartState extends State<CashflowChart> {
   String _selectedTimeRange = '7 days';
+  DateTimeRange? _customDateRange;
 
   List<CashflowModel> _getFilteredCashflows() {
     final now = DateTime.now();
-    if (_selectedTimeRange == '7 days') {
-      return widget.cashflows
-          .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 7))))
-          .toList();
-    } else {
-      return widget.cashflows
-          .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 30))))
-          .toList();
+    switch (_selectedTimeRange) {
+      case '7 days':
+        return widget.cashflows
+            .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 7))))
+            .toList();
+      case '1 month':
+        return widget.cashflows
+            .where((cf) => cf.date.isAfter(now.subtract(Duration(days: 30))))
+            .toList();
+      case 'Custom':
+        if (_customDateRange != null) {
+          return widget.cashflows
+              .where((cf) =>
+                  // Ensure the date is exactly within the selected range
+                  cf.date.isAtSameMomentAs(_customDateRange!.start) ||
+                  cf.date.isAtSameMomentAs(_customDateRange!.end) ||
+                  (cf.date.isAfter(_customDateRange!.start) &&
+                      cf.date.isBefore(_customDateRange!.end)))
+              .toList();
+        }
+        return widget.cashflows;
+      default:
+        return widget.cashflows;
+    }
+  }
+
+  Future<void> _selectCustomDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDateRange: _customDateRange ??
+          DateTimeRange(
+              start: DateTime.now().subtract(Duration(days: 7)),
+              end: DateTime.now()),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF6750A4),
+              onPrimary: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTimeRange = 'Custom';
+        _customDateRange = picked;
+      });
     }
   }
 
@@ -47,7 +93,7 @@ class _CashflowChartState extends State<CashflowChart> {
     }
     for (final cashflow in filteredCashflows) {
       print(
-          'Cashflow: type=${cashflow.type}, amount=${cashflow.amount}, balance=${cashflow.balance}');
+          'Cashflow: type=${cashflow.type}, amount=${cashflow.amount}, balance=${cashflow.balance}, date=${cashflow.date}');
     }
     final latestBalance = filteredCashflows.last.balance;
 
@@ -58,27 +104,56 @@ class _CashflowChartState extends State<CashflowChart> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Cashflows',
+              'Arus Kas',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
-            DropdownButton<String>(
-              value: _selectedTimeRange,
-              items: ['7 days', '1 month'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
+            PopupMenuButton<String>(
+              initialValue: _selectedTimeRange,
+              onSelected: (String value) async {
+                if (value == 'Custom') {
+                  await _selectCustomDateRange(context);
+                } else {
                   setState(() {
-                    _selectedTimeRange = newValue;
+                    _selectedTimeRange = value;
+                    _customDateRange = null;
                   });
                 }
               },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: '7 days',
+                  child: Text('7 Days'),
+                ),
+                const PopupMenuItem<String>(
+                  value: '1 month',
+                  child: Text('1 Month'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Custom',
+                  child: Text('Custom Range'),
+                ),
+              ],
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Color(0xFF6750A4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      _selectedTimeRange == 'Custom' && _customDateRange != null
+                          ? '${DateFormat('dd/MM').format(_customDateRange!.start)} - ${DateFormat('dd/MM').format(_customDateRange!.end)}'
+                          : _selectedTimeRange,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Icon(Icons.arrow_drop_down, color: Colors.white),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

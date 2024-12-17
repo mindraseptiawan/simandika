@@ -5,6 +5,7 @@ import 'package:simandika/pages/inventaris/stock_movement_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/dashboard_page.dart';
+import 'package:simandika/pages/keuangan/dashboard_inventaris.dart';
 import 'package:simandika/pages/keuangan/order_page.dart';
 import 'package:simandika/pages/keuangan/purchase_page.dart';
 import 'package:simandika/pages/keuangan/supplier_page.dart';
@@ -28,17 +29,17 @@ class LayananPageState extends State<LayananPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: const Text('Konfimasi Keluar'),
+          content: const Text('Apakah anda yakin ingin keluar?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Tidak'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: const Text('Logout'),
+              child: const Text('Keluar'),
               onPressed: () async {
                 try {
                   await Provider.of<AuthProvider>(context, listen: false)
@@ -131,49 +132,55 @@ class LayananPageState extends State<LayananPage> {
             context, MaterialPageRoute(builder: (context) => DashboardPage()));
         break;
       case 1:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const TransaksiPage()));
-        break;
-      case 2:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const OrderPage()));
-        break;
-      case 3:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const PurchasePage()));
-        break;
-      case 4:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AyamPage()));
-        break;
-      case 5:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const StockMovementPage()));
-        break;
-      case 6:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const PakanPage()));
-        break;
-      case 7:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerPage()));
-        break;
-      case 8:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const SupplierPage()));
-        break;
-      case 9:
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const UserManagementPage()));
+                builder: (context) => SupplierAverageSusutPage()));
+        break;
+      case 2:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const TransaksiPage()));
+        break;
+      case 3:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const OrderPage()));
+        break;
+      case 4:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const PurchasePage()));
+        break;
+      case 5:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const AyamPage()));
+        break;
+      case 6:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const StockMovementPage()));
+        break;
+      case 7:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const PakanPage()));
+        break;
+      case 8:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerPage()));
+        break;
+      case 9:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SupplierPage()));
+        break;
       case 10:
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
-        break;
       case 11:
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const UserManagementPage()));
+        break;
+      case 12:
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -192,43 +199,43 @@ class LayananPageState extends State<LayananPage> {
         );
       case 1:
         return Image.asset(
-          'assets/transaksi.png',
+          'assets/dashboard.png',
           width: 30.0,
           height: 30.0,
         );
       case 2:
         return Image.asset(
-          'assets/order.png',
+          'assets/transaksi.png',
           width: 30.0,
           height: 30.0,
         );
       case 3:
         return Image.asset(
-          'assets/purchase.png',
+          'assets/order.png',
           width: 30.0,
           height: 30.0,
         );
       case 4:
         return Image.asset(
-          'assets/kandang.png',
+          'assets/purchase.png',
           width: 30.0,
           height: 30.0,
         );
       case 5:
         return Image.asset(
-          'assets/ayamo.png',
+          'assets/kandang.png',
           width: 30.0,
           height: 30.0,
         );
       case 6:
         return Image.asset(
-          'assets/stokpakan.png',
+          'assets/ayamo.png',
           width: 30.0,
           height: 30.0,
         );
       case 7:
         return Image.asset(
-          'assets/customer.png',
+          'assets/stokpakan.png',
           width: 30.0,
           height: 30.0,
         );
@@ -240,13 +247,19 @@ class LayananPageState extends State<LayananPage> {
         );
       case 9:
         return Image.asset(
-          'assets/stokpakan.png',
+          'assets/customer.png',
           width: 30.0,
           height: 30.0,
         );
       case 10:
-        return Icon(Icons.account_balance_wallet);
+        return Image.asset(
+          'assets/stokpakan.png',
+          width: 30.0,
+          height: 30.0,
+        );
       case 11:
+        return Icon(Icons.account_balance_wallet);
+      case 12:
         return Icon(Icons.assignment_add);
       default:
         return Icon(Icons.help);
@@ -256,28 +269,30 @@ class LayananPageState extends State<LayananPage> {
   String _getTextForIndex(int index) {
     switch (index) {
       case 0:
-        return 'Dashboard';
+        return 'Dashboard Keuangan';
       case 1:
-        return 'Transaksi';
+        return 'Dashboard Inventaris';
       case 2:
-        return 'Order';
+        return 'Transaksi';
       case 3:
-        return 'Pembelian';
+        return 'Order';
       case 4:
-        return 'Kandang Ayam';
+        return 'Pembelian';
       case 5:
-        return 'Stok Ayam';
+        return 'Kandang Ayam';
       case 6:
-        return 'Pakan';
+        return 'Stok Ayam';
       case 7:
-        return 'Customer';
+        return 'Pakan';
       case 8:
-        return 'Supplier';
+        return 'Customer';
       case 9:
-        return 'Pengaturan User';
+        return 'Supplier';
       case 10:
-        return 'Laporan Keuangan';
+        return 'Pengaturan User';
       case 11:
+        return 'Laporan Keuangan';
+      case 12:
         return 'Laporan Inventaris';
       default:
         return 'Menu';

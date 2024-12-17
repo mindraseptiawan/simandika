@@ -16,6 +16,7 @@ class PurchaseModel {
   final TransaksiModel? transaction;
   final SupplierModel? supplier;
   final int? currentStock;
+  final int? susutPerjalanan;
 
   PurchaseModel({
     required this.id,
@@ -31,6 +32,7 @@ class PurchaseModel {
     this.transaction,
     this.supplier,
     this.currentStock,
+    this.susutPerjalanan,
   });
 
   factory PurchaseModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +56,7 @@ class PurchaseModel {
           ? SupplierModel.fromJson(json['supplier'])
           : null,
       currentStock: json['currentStock'],
+      susutPerjalanan: json['susutPerjalanan'],
     );
   }
 
@@ -72,6 +75,7 @@ class PurchaseModel {
       'transaction': transaction?.toJson(),
       'supplier': supplier?.toJson(),
       'currentStock': currentStock,
+      'susutPerjalanan': susutPerjalanan,
     };
   }
 
