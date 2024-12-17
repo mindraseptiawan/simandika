@@ -49,13 +49,13 @@ class AyamPageState extends State<AyamPage> {
       showCustomSnackBar(
           context,
           kandang == null
-              ? 'Kandang added successfully'
-              : 'Kandang updated successfully',
+              ? 'Berhasil Menambahkan Kandang'
+              : 'Berhasil Memperbarui Kandang',
           SnackBarType.success);
     } else if (result == false) {
       showCustomSnackBar(
           context,
-          'Failed to ${kandang == null ? 'add' : 'update'} kandang!',
+          'Gagal ${kandang == null ? 'tambah' : 'memperbarui'} kandang!',
           SnackBarType.success);
     }
   }

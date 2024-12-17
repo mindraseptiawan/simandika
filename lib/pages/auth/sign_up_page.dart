@@ -54,7 +54,7 @@ class SignUpPageState extends State<SignUpPage> {
         }
       } else {
         if (konteks.mounted) {
-          showCustomSnackBar(context, 'Gagal Register!', SnackBarType.error);
+          showCustomSnackBar(context, 'Gagal Daftar!', SnackBarType.error);
         }
       }
 
@@ -70,7 +70,7 @@ class SignUpPageState extends State<SignUpPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Sign Up',
+              'Daftar',
               style: primaryTextStyle.copyWith(
                 fontSize: 24,
                 fontWeight: semiBold,
@@ -95,7 +95,7 @@ class SignUpPageState extends State<SignUpPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Full Name',
+              'Nama Lengkap',
               style: primaryTextStyle.copyWith(
                 fontSize: 16,
                 fontWeight: medium,
@@ -128,7 +128,7 @@ class SignUpPageState extends State<SignUpPage> {
                         style: inputTextStyle,
                         controller: nameController,
                         decoration: InputDecoration.collapsed(
-                          hintText: 'Your Full Name',
+                          hintText: 'Nama Lengkap Anda',
                           hintStyle: subtitleTextStyle,
                         ),
                       ),
@@ -182,7 +182,7 @@ class SignUpPageState extends State<SignUpPage> {
                         style: inputTextStyle,
                         controller: usernameController,
                         decoration: InputDecoration.collapsed(
-                          hintText: 'Your Username',
+                          hintText: 'Username Anda',
                           hintStyle: subtitleTextStyle,
                         ),
                       ),
@@ -203,7 +203,7 @@ class SignUpPageState extends State<SignUpPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email Address',
+              'Alamat Email',
               style: primaryTextStyle.copyWith(
                 fontSize: 16,
                 fontWeight: medium,
@@ -236,7 +236,7 @@ class SignUpPageState extends State<SignUpPage> {
                         style: inputTextStyle,
                         controller: emailController,
                         decoration: InputDecoration.collapsed(
-                          hintText: 'Your Email Address',
+                          hintText: 'Alamat Email Anda',
                           hintStyle: subtitleTextStyle,
                         ),
                       ),
@@ -257,7 +257,7 @@ class SignUpPageState extends State<SignUpPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Phone Number',
+              'Nomor HP',
               style: primaryTextStyle.copyWith(
                 fontSize: 16,
                 fontWeight: medium,
@@ -291,7 +291,7 @@ class SignUpPageState extends State<SignUpPage> {
                         style: inputTextStyle,
                         controller: phoneController,
                         decoration: InputDecoration.collapsed(
-                          hintText: 'Your Phone Number',
+                          hintText: 'Nomor HP Anda',
                           hintStyle: subtitleTextStyle,
                         ),
                       ),
@@ -357,7 +357,7 @@ class SignUpPageState extends State<SignUpPage> {
                             onPressed:
                                 togglePasswordVisibility, // Toggle visibilitas
                           ),
-                          hintText: 'Your Password',
+                          hintText: 'Password Anda',
                           hintStyle: subtitleTextStyle,
                           border: InputBorder.none,
                         ),
@@ -386,7 +386,7 @@ class SignUpPageState extends State<SignUpPage> {
             ),
           ),
           child: Text(
-            'Sign Up',
+            'Daftar',
             style: primaryTextStyle.copyWith(
               fontSize: 16,
               fontWeight: medium,
@@ -403,7 +403,7 @@ class SignUpPageState extends State<SignUpPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Already have an account? ',
+              'Sudah punya akun? ',
               style: subtitleTextStyle.copyWith(
                 fontSize: 12,
               ),
@@ -413,7 +413,7 @@ class SignUpPageState extends State<SignUpPage> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Sign In',
+                'Masuk',
                 style: purpleTextStyle.copyWith(
                   fontSize: 12,
                   fontWeight: medium,

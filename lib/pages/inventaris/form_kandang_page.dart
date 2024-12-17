@@ -69,7 +69,7 @@ class FormKandangPageState extends State<FormKandangPage> {
       }
     } catch (e) {
       debugPrint(
-          'Failed to ${widget.kandang == null ? 'add' : 'update'} kandang: $e');
+          'Gagal to ${widget.kandang == null ? 'add' : 'update'} kandang: $e');
       Navigator.pop(context, false);
     }
   }
@@ -87,7 +87,7 @@ class FormKandangPageState extends State<FormKandangPage> {
           ),
         ),
         child: Text(
-          widget.kandang == null ? 'Tambah' : 'Update',
+          widget.kandang == null ? 'Tambah' : 'Perbarui',
           style: primaryTextStyle.copyWith(fontSize: 16, fontWeight: bold),
         ),
       ),

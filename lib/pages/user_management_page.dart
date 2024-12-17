@@ -77,10 +77,9 @@ class UserManagementPageState extends State<UserManagementPage> {
     try {
       await userService.assignRole(userId, role, token!);
 
-      showCustomSnackBar(
-          context, 'Role assigned successfully!', SnackBarType.success);
+      showCustomSnackBar(context, 'Role Berhasi di Set!', SnackBarType.success);
     } catch (e) {
-      showCustomSnackBar(context, 'Failed to assign role!', SnackBarType.error);
+      showCustomSnackBar(context, 'Gagal Mengatur Role!', SnackBarType.error);
     }
   }
 
@@ -88,7 +87,7 @@ class UserManagementPageState extends State<UserManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Management', style: primaryTextStyle),
+        title: Text('User Setting', style: primaryTextStyle),
         backgroundColor: primaryColor,
       ),
       body: isLoading

@@ -34,7 +34,8 @@ class PakanPageState extends State<PakanPage> {
     try {
       pakans = await pakanService.getPakan(token!);
     } catch (e) {
-      showCustomSnackBar(context, 'Failed to load pakan!', SnackBarType.error);
+      showCustomSnackBar(
+          context, 'Gagal Memuat Data Pakan!', SnackBarType.error);
     } finally {
       setState(() {
         isLoading = false;
@@ -48,9 +49,11 @@ class PakanPageState extends State<PakanPage> {
     try {
       await pakanService.deletePakan(id, token!);
       getPakan();
+      showCustomSnackBar(
+          context, 'Berhasil Mengahpus Data Pakan!', SnackBarType.success);
     } catch (e) {
       showCustomSnackBar(
-          context, 'Failed to delete pakan!', SnackBarType.error);
+          context, 'Gagal Mengahpus Data Pakan!', SnackBarType.error);
     }
   }
 

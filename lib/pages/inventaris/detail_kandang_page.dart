@@ -102,15 +102,15 @@ class DetailPageState extends State<DetailPage>
       showCustomSnackBar(
           context,
           pemeliharaan == null
-              ? 'Pemeliharaan added successfully'
-              : 'Pemeliharaan updated successfully',
+              ? 'Berhasil Menambahkan Data Pemeliharaan'
+              : 'Berhasil Memperbarui Data Pemeliharaan',
           SnackBarType.success);
       await onSuccess(); // Call the callback to refresh data
       _tabController.animateTo(1); // Switch to the Data Harian tab
     } else if (result == false) {
       showCustomSnackBar(
           context,
-          'Failed to ${pemeliharaan == null ? 'add' : 'update'} pemeliharaan',
+          'Gagal ${pemeliharaan == null ? 'tambah' : 'perbarui'} pemeliharaan',
           SnackBarType.success);
     }
   }
@@ -122,7 +122,7 @@ class DetailPageState extends State<DetailPage>
     try {
       return await PemeliharaanService().deletePemeliharaan(id, token!);
     } catch (e) {
-      debugPrint('Failed to delete pemeliharaan: $e');
+      debugPrint('Gagal Menghapus pemeliharaan: $e');
       return false;
     }
   }
@@ -219,8 +219,8 @@ class DetailPageState extends State<DetailPage>
                   style: const TextStyle(color: Colors.white)));
         } else if (!snapshot.hasData) {
           return const Center(
-              child:
-                  Text('No data found', style: TextStyle(color: Colors.white)));
+              child: Text('Tidak ada Data',
+                  style: TextStyle(color: Colors.white)));
         } else {
           final kandang = snapshot.data!;
           final token =
@@ -272,7 +272,7 @@ class DetailPageState extends State<DetailPage>
                         } else if (!purchaseSnapshot.hasData ||
                             purchaseSnapshot.data!.isEmpty) {
                           return const Center(
-                              child: Text('No purchase data found',
+                              child: Text('Data Pembelian Tidak Ditemukan',
                                   style: TextStyle(color: Colors.white)));
                         } else {
                           final filteredPurchases = purchaseSnapshot.data!
@@ -323,7 +323,7 @@ class DetailPageState extends State<DetailPage>
                                             padding:
                                                 EdgeInsets.only(bottom: 8.0),
                                             child: Text(
-                                              'Quantity',
+                                              'Jumlah',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -336,7 +336,7 @@ class DetailPageState extends State<DetailPage>
                                             padding:
                                                 EdgeInsets.only(bottom: 8.0),
                                             child: Text(
-                                              'Current',
+                                              'Jumlah saat ini',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -459,8 +459,8 @@ class DetailPageState extends State<DetailPage>
                   style: const TextStyle(color: Colors.white)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
-              child:
-                  Text('No data found', style: TextStyle(color: Colors.white)));
+              child: Text('Tidak Ada Data',
+                  style: TextStyle(color: Colors.white)));
         } else {
           final pemeliharaans = snapshot.data!;
 
@@ -578,13 +578,13 @@ class DetailPageState extends State<DetailPage>
                                 if (success) {
                                   showCustomSnackBar(
                                       context,
-                                      'Pemeliharaan deleted successfully',
+                                      'Pemeliharaan Berhasil dihapus',
                                       SnackBarType.success);
                                   _refreshPemeliharaanData();
                                 } else {
                                   showCustomSnackBar(
                                       context,
-                                      'Failed to delete pemeliharaan!',
+                                      'Gagal Menghapus Data Pemeliharaan!',
                                       SnackBarType.error);
                                 }
                               },
@@ -615,8 +615,8 @@ class DetailPageState extends State<DetailPage>
                   style: const TextStyle(color: Colors.white)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
-              child:
-                  Text('No data found', style: TextStyle(color: Colors.white)));
+              child: Text('Tidak Ada Data',
+                  style: TextStyle(color: Colors.white)));
         } else {
           final stocks = snapshot.data!;
           stocks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -628,7 +628,7 @@ class DetailPageState extends State<DetailPage>
               return ListTile(
                 title: Text(stock.notes,
                     style: const TextStyle(color: Colors.white)),
-                subtitle: Text('Quantity: ${stock.quantity}',
+                subtitle: Text('Jumlah: ${stock.quantity}',
                     style: const TextStyle(color: Colors.white)),
               );
             },

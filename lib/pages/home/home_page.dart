@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Overview',
+                Text('Grafik Status Order',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -337,16 +337,16 @@ class _HomePageState extends State<HomePage>
               children: [
                 _buildLegendItem(
                     'Pending', Colors.blue, _pendingCount.toString()),
-                _buildLegendItem('Verification Payment', Colors.orange,
+                _buildLegendItem('Verifikasi Pembayaran', Colors.orange,
                     _verificationCount.toString()),
-                _buildLegendItem('Awaiting Payment', Colors.green,
+                _buildLegendItem('Menunggu Pembayaran', Colors.green,
                     _awaitingPaymentCount.toString()),
                 _buildLegendItem(
-                    'Completed', Colors.yellow, _completedCount.toString()),
+                    'Selesai', Colors.yellow, _completedCount.toString()),
               ],
             ),
             SizedBox(height: 24),
-            Text('Stok Ayam',
+            Text('Grafik Pergerakan Stok Ayam',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -358,8 +358,8 @@ class _HomePageState extends State<HomePage>
               spacing: 16,
               runSpacing: 8,
               children: [
-                _buildLegend('In', Colors.blue),
-                _buildLegend('Out', Colors.orange),
+                _buildLegend('Stok Masuk', Colors.blue),
+                _buildLegend('Stok Keluar', Colors.orange),
               ],
             ),
           ],

@@ -70,20 +70,19 @@ class EditProfilePageState extends State<EditProfilePage> {
         if (success) {
           // Show a success message
 
-          showCustomSnackBar(
-              context, 'Profile updated successfully!', SnackBarType.success);
+          showCustomSnackBar(context, 'Berhasil Memperbarui Data Profil!',
+              SnackBarType.success);
           Navigator.pop(context); // Go back to the previous screen
         } else {
           // Show an error message
 
           showCustomSnackBar(
-              context, 'Failed to update profile', SnackBarType.error);
+              context, 'Gagal Memperbarui Data Profil', SnackBarType.error);
         }
       } catch (e) {
         // Handle errors
 
-        showCustomSnackBar(
-            context, 'An error occurred: $e', SnackBarType.error);
+        showCustomSnackBar(context, 'Terjadi Error $e', SnackBarType.error);
       }
     }
   }
@@ -104,7 +103,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: primaryColor,
         elevation: 0,
         centerTitle: true,
-        title: const Text('Edit Profile',
+        title: const Text('Edit Profil',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         actions: [
           IconButton(
@@ -125,14 +124,14 @@ class EditProfilePageState extends State<EditProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Name',
+              'Nama',
               style: secondaryTextStyle.copyWith(fontSize: 13),
             ),
             TextFormField(
               controller: _nameController,
               style: primaryTextStyle,
               decoration: InputDecoration(
-                hintText: 'Enter your name',
+                hintText: 'Masukkan Nama Anda',
                 hintStyle: primaryTextStyle,
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: subtitleColor),
@@ -140,7 +139,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
+                  return 'Tolong Masukkan Nama';
                 }
                 return null;
               },
@@ -164,7 +163,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               controller: _usernameController,
               style: primaryTextStyle,
               decoration: InputDecoration(
-                hintText: 'Enter your username',
+                hintText: 'Masukkan username',
                 hintStyle: primaryTextStyle,
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: subtitleColor),
@@ -172,7 +171,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your username';
+                  return 'Tolong Masukkan Username';
                 }
                 return null;
               },
@@ -189,14 +188,14 @@ class EditProfilePageState extends State<EditProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email Address',
+              'Alamat Email',
               style: secondaryTextStyle.copyWith(fontSize: 13),
             ),
             TextFormField(
               controller: _emailController,
               style: primaryTextStyle,
               decoration: InputDecoration(
-                hintText: 'Enter your email',
+                hintText: 'Masukkan Email Anda',
                 hintStyle: primaryTextStyle,
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: subtitleColor),
@@ -204,7 +203,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return 'Tolong Masukkan Email';
                 }
                 return null;
               },
@@ -221,14 +220,14 @@ class EditProfilePageState extends State<EditProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Phone',
+              'Nomor HP',
               style: secondaryTextStyle.copyWith(fontSize: 13),
             ),
             TextFormField(
               controller: _phoneController,
               style: primaryTextStyle,
               decoration: InputDecoration(
-                hintText: 'Enter your phone',
+                hintText: 'Masukkan Nomor HP',
                 hintStyle: primaryTextStyle,
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: subtitleColor),
@@ -236,7 +235,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your phone number';
+                  return 'Tolong Masukkan Nomor HP';
                 }
                 return null;
               },

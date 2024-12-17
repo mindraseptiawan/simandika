@@ -106,7 +106,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       debugPrint('Failed to load pakan data: $e');
       if (mounted) {
         showCustomSnackBar(
-            context, 'Failed to load pakan data!', SnackBarType.error);
+            context, 'Gagal Menemukan Data Pakan!', SnackBarType.error);
       }
     }
   }
@@ -152,7 +152,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       debugPrint('Failed to load batch data: $e');
       if (mounted) {
         showCustomSnackBar(
-            context, 'Failed to load batch data!', SnackBarType.error);
+            context, 'Gagal Menemukan Batch Data!', SnackBarType.error);
       }
     }
   }
@@ -180,7 +180,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
       debugPrint('Failed to load kandang data: $e');
 
       showCustomSnackBar(
-          context, 'Failed to load kandang data!', SnackBarType.error);
+          context, 'Gagal Menemukan Data Kandang!', SnackBarType.error);
     }
   }
 
@@ -302,7 +302,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
     } catch (e) {
       showCustomSnackBar(
           context,
-          'Failed to ${widget.pemeliharaan == null ? 'add' : 'update'} pemeliharaan: ${e.toString()}',
+          'Gagal untuk ${widget.pemeliharaan == null ? 'tambah' : 'perbarui'} pemeliharaan: ${e.toString()}',
           SnackBarType.error);
     }
   }
@@ -320,7 +320,7 @@ class FormPemeliharaanPageState extends State<FormPemeliharaanPage> {
           ),
         ),
         child: Text(
-          widget.pemeliharaan == null ? 'Tambah' : 'Update',
+          widget.pemeliharaan == null ? 'Tambah' : 'Perbarui',
           style: primaryTextStyle.copyWith(
               fontSize: 16, fontWeight: FontWeight.bold),
         ),

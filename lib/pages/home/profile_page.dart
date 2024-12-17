@@ -87,7 +87,7 @@ class ProfilePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hallo, ${user.name}',
+                        'Halo, ${user.name}',
                         style: primaryTextStyle.copyWith(
                           fontSize: 24,
                           fontWeight: semiBold,
@@ -148,7 +148,7 @@ class ProfilePage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               Text(
-                'Account',
+                'Akun User',
                 style: primaryTextStyle.copyWith(
                   fontSize: 16,
                   fontWeight: semiBold,
@@ -158,21 +158,8 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   Navigator.pushNamed(context, '/edit-profile');
                 },
-                child: menuItem('Edit Profile'),
+                child: menuItem('Edit Data Profil'),
               ),
-              menuItem('Your Orders'),
-              menuItem('Help'),
-              const SizedBox(height: 30),
-              Text(
-                'General',
-                style: primaryTextStyle.copyWith(
-                  fontSize: 16,
-                  fontWeight: semiBold,
-                ),
-              ),
-              menuItem('Privacy & Policy'),
-              menuItem('Term of Service'),
-              menuItem('Rate App'),
             ],
           ),
         ),

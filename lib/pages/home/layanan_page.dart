@@ -266,7 +266,7 @@ class LayananPageState extends State<LayananPage> {
       case 4:
         return 'Kandang Ayam';
       case 5:
-        return 'Stock Ayam';
+        return 'Stok Ayam';
       case 6:
         return 'Pakan';
       case 7:
@@ -274,7 +274,7 @@ class LayananPageState extends State<LayananPage> {
       case 8:
         return 'Supplier';
       case 9:
-        return 'User Settings';
+        return 'Pengaturan User';
       case 10:
         return 'Laporan Keuangan';
       case 11:

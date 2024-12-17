@@ -32,7 +32,7 @@ class SignInPageState extends State<SignInPage> {
     if (success) {
       Navigator.pushNamed(context, '/home');
     } else {
-      showCustomSnackBar(context, 'Gagal Login!', SnackBarType.error);
+      showCustomSnackBar(context, 'Gagal Masuk!', SnackBarType.error);
     }
 
     setState(() => isLoading = false);
@@ -50,7 +50,7 @@ class SignInPageState extends State<SignInPage> {
             children: [
               const SizedBox(height: 30),
               Text(
-                'Login',
+                'Masuk',
                 style: primaryTextStyle.copyWith(
                   fontSize: 24,
                   fontWeight: semiBold,
@@ -65,7 +65,7 @@ class SignInPageState extends State<SignInPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Enter your registered username to log in',
+                'Masukkan username yang terdaftar untuk masuk aplikasi',
                 style: primaryTextStyle.copyWith(
                     fontSize: 16, fontWeight: semiBold),
               ),
@@ -73,14 +73,14 @@ class SignInPageState extends State<SignInPage> {
               _buildInputField(
                 label: 'Username',
                 controller: controllerUsername,
-                hintText: 'Your Username',
+                hintText: 'Username Anda',
                 iconPath: 'assets/username.png',
               ),
               const SizedBox(height: 20),
               _buildInputField(
                 label: 'Password',
                 controller: controllerPassword,
-                hintText: 'Your Password',
+                hintText: 'Password Anda',
                 iconPath: 'assets/icon_password.png',
                 obscureText: true,
               ),
@@ -168,7 +168,7 @@ class SignInPageState extends State<SignInPage> {
           ),
         ),
         child: Text(
-          'Log In',
+          'Masuk',
           style: primaryTextStyle.copyWith(fontSize: 16, fontWeight: bold),
         ),
       ),
@@ -182,13 +182,13 @@ class SignInPageState extends State<SignInPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Don\'t have an account? ',
+            'Tidak memiliki akun? ',
             style: subtitleTextStyle.copyWith(fontSize: 12),
           ),
           GestureDetector(
             onTap: () => Navigator.pushNamed(context, '/register'),
             child: Text(
-              'Sign Up',
+              'Daftar',
               style: purpleTextStyle.copyWith(fontSize: 12, fontWeight: medium),
             ),
           ),
