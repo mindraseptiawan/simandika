@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simandika/pages/inventaris/ayam_page.dart';
 import 'package:simandika/pages/inventaris/stock_movement_page.dart';
+import 'package:simandika/pages/keuangan/activity_log_page.dart';
 import 'package:simandika/pages/keuangan/customer_page.dart';
 import 'package:simandika/pages/inventaris/pakan_page.dart';
 import 'package:simandika/pages/keuangan/dashboard_page.dart';
@@ -84,7 +85,7 @@ class LayananPageState extends State<LayananPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: ListView.builder(
-                    itemCount: 10,
+                    itemCount: 12,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -175,10 +176,8 @@ class LayananPageState extends State<LayananPage> {
             MaterialPageRoute(
                 builder: (context) => const UserManagementPage()));
       case 11:
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const UserManagementPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const ActivityLogPage()));
         break;
       case 12:
         Navigator.push(
@@ -291,7 +290,7 @@ class LayananPageState extends State<LayananPage> {
       case 10:
         return 'Pengaturan User';
       case 11:
-        return 'Laporan Keuangan';
+        return 'Log Aktivitas';
       case 12:
         return 'Laporan Inventaris';
       default:
